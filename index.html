@@ -1,0 +1,573 @@
+import { useState, useRef, useEffect } from "react";
+import { Wrench, MapPin, Clock, Phone, Star, ShieldCheck, Zap, CalendarCheck, ChevronDown, Menu, X, Bot, Send, Loader, MessageCircle, Home, Settings, Users, Navigation, ChevronRight, CheckCircle, AlertCircle, Thermometer, Battery, Car } from "lucide-react";
+
+// ─── ROUTER ───────────────────────────────────────────────────────────────────
+function useRouter() {
+  const [page, setPage] = useState("home");
+  return { page, navigate: setPage };
+}
+
+// ─── AI CHAT WIDGET ───────────────────────────────────────────────────────────
+function ChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [msgs, setMsgs] = useState([{ role: "assistant", text: "Hi! I'm the Quick Fix Auto assistant. Ask me anything about our services, pricing, or hours! 🔧" }]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, loading]);
+
+  const send = async () => {
+    const txt = input.trim();
+    if (!txt || loading) return;
+    setInput("");
+    const next = [...msgs, { role: "user", text: txt }];
+    setMsgs(next);
+    setLoading(true);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: `You are a friendly, knowledgeable service advisor at Quick Fix Auto Limited in Vancouver, BC. 
+Address: 8655 Cambie St., Unit 3, Vancouver, BC V6P 3J9. Phone: +1 604-441-4006. Hours: 9AM–8PM every day.
+Services: Advanced diagnostics (OBD-II scanning), radiator/cooling system repair, general auto repair (brakes, oil changes, tune-ups, suspension, electrical).
+Pricing guidance: Oil change ~$60–$90, brake pads ~$150–$250/axle, diagnostics ~$80–$120, radiator flush ~$100–$150. Always note final pricing needs in-person assessment.
+Be helpful, warm, concise (2–3 sentences max). Encourage booking or calling for specific quotes.`,
+          messages: next.map(m => ({ role: m.role, content: m.text }))
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.map(b => b.text || "").join("") || "Please call us at +1 604-441-4006 for assistance!";
+      setMsgs(m => [...m, { role: "assistant", text: reply }]);
+    } catch {
+      setMsgs(m => [...m, { role: "assistant", text: "Sorry, I'm having trouble connecting. Please call +1 604-441-4006!" }]);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <>
+      {/* Bubble */}
+      <button onClick={() => setOpen(o => !o)}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-orange-500 hover:bg-orange-600 rounded-full shadow-2xl flex items-center justify-center transition-all">
+        {open ? <X className="text-white" size={22} /> : <MessageCircle className="text-white" size={22} />}
+        {!open && <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white" />}
+      </button>
+      {/* Window */}
+      {open && (
+        <div className="fixed bottom-24 right-6 z-50 w-80 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden" style={{height:420}}>
+          <div className="bg-slate-900 px-4 py-3 flex items-center gap-3 border-b border-slate-700">
+            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center"><Bot size={16} className="text-white"/></div>
+            <div><p className="text-white text-sm font-bold">Quick Fix Assistant</p><p className="text-green-400 text-xs">Online now</p></div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+            {msgs.map((m, i) => (
+              <div key={i} className={`flex gap-2 ${m.role==="user"?"justify-end":""}`}>
+                {m.role==="assistant" && <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1"><Bot size={11} className="text-white"/></div>}
+                <div className={`rounded-2xl px-3 py-2 text-xs max-w-xs leading-relaxed ${m.role==="assistant"?"bg-slate-700 text-slate-200":"bg-orange-500 text-white"}`}>{m.text}</div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex gap-2">
+                <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0"><Bot size={11} className="text-white"/></div>
+                <div className="bg-slate-700 rounded-2xl px-3 py-2 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay:"0ms"}}/><span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay:"150ms"}}/><span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay:"300ms"}}/></div>
+              </div>
+            )}
+            <div ref={bottomRef}/>
+          </div>
+          <div className="p-3 border-t border-slate-700 flex gap-2">
+            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}
+              placeholder="Ask anything..." className="flex-1 bg-slate-700 text-white text-xs rounded-xl px-3 py-2 outline-none placeholder-slate-400 border border-slate-600 focus:border-orange-500"/>
+            <button onClick={send} className="w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center justify-center transition-colors">
+              <Send size={13} className="text-white"/>
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ─── HEADER ───────────────────────────────────────────────────────────────────
+function Header({ page, navigate }) {
+  const [mOpen, setMOpen] = useState(false);
+  const links = [
+    { id: "home", label: "Home", icon: <Home size={14}/> },
+    { id: "services", label: "Services", icon: <Settings size={14}/> },
+    { id: "reviews", label: "Reviews", icon: <Users size={14}/> },
+    { id: "location", label: "Location", icon: <Navigation size={14}/> },
+  ];
+  return (
+    <header className="fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-700 shadow-lg">
+      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
+        <button onClick={()=>{navigate("home");setMOpen(false);}} className="flex items-center gap-2">
+          <Wrench className="text-orange-500" size={22}/>
+          <span className="text-white font-bold text-lg tracking-tight">Quick Fix <span className="text-orange-500">Auto</span></span>
+        </button>
+        <nav className="hidden md:flex items-center gap-1">
+          {links.map(l => (
+            <button key={l.id} onClick={()=>navigate(l.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${page===l.id?"bg-orange-500/20 text-orange-400":"text-slate-300 hover:text-white hover:bg-slate-800"}`}>
+              {l.icon}{l.label}
+            </button>
+          ))}
+        </nav>
+        <button onClick={()=>navigate("quote")} className="hidden md:inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-5 py-2 rounded-full transition-colors">
+          <CalendarCheck size={15}/> Book Now
+        </button>
+        <button className="md:hidden text-white" onClick={()=>setMOpen(o=>!o)}>{mOpen?<X/>:<Menu/>}</button>
+      </div>
+      {mOpen && (
+        <div className="md:hidden bg-slate-900 border-t border-slate-700 px-4 pb-4 flex flex-col gap-2">
+          {links.map(l=>(
+            <button key={l.id} onClick={()=>{navigate(l.id);setMOpen(false);}}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-left transition-all ${page===l.id?"bg-orange-500/20 text-orange-400":"text-slate-300"}`}>
+              {l.icon}{l.label}
+            </button>
+          ))}
+          <button onClick={()=>{navigate("quote");setMOpen(false);}} className="bg-orange-500 text-white text-sm font-bold px-5 py-2 rounded-full text-center mt-1">Book Now</button>
+        </div>
+      )}
+    </header>
+  );
+}
+
+// ─── HOME PAGE ────────────────────────────────────────────────────────────────
+function HomePage({ navigate }) {
+  return (
+    <div>
+      {/* Hero */}
+      <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 pt-32 pb-24 px-4 overflow-hidden">
+        <div className="absolute inset-0 opacity-5" style={{backgroundImage:"repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)",backgroundSize:"20px 20px"}}/>
+        <div className="max-w-4xl mx-auto relative z-10 text-center">
+          <span className="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-5 tracking-widest uppercase">Vancouver's Trusted Auto Shop</span>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-5">Expert Auto Repairs &<br/><span className="text-orange-500">Diagnostics</span> in Vancouver</h1>
+          <p className="text-slate-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto">Fast, reliable, and professional service you can trust. Located at <span className="text-orange-400 font-semibold">8655 Cambie St., Vancouver, BC</span></p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onClick={()=>navigate("quote")} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-full text-base transition-all shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2">
+              <CalendarCheck size={18}/> Book Appointment
+            </button>
+            <button onClick={()=>navigate("services")} className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-full text-base transition-all flex items-center justify-center gap-2">
+              <Wrench size={18}/> View Services
+            </button>
+          </div>
+        </div>
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-slate-500 animate-bounce"><ChevronDown size={20}/></div>
+      </section>
+      {/* Trust Bar */}
+      <div className="bg-slate-800 border-y border-slate-700">
+        <div className="max-w-4xl mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[{icon:<ShieldCheck className="text-orange-500" size={26}/>,label:"Certified Technicians"},{icon:<Zap className="text-orange-500" size={26}/>,label:"Same-Day Service"},{icon:<Clock className="text-orange-500" size={26}/>,label:"Open 7 Days a Week"}].map(({icon,label})=>(
+            <div key={label} className="flex items-center justify-center gap-3 text-white font-semibold text-sm">{icon}{label}</div>
+          ))}
+        </div>
+      </div>
+      {/* Services Preview */}
+      <section className="bg-slate-900 py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-white mb-3">Our <span className="text-orange-500">Services</span></h2>
+            <p className="text-slate-400">Professional auto care delivered with speed, honesty, and precision.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[
+              {icon:<Zap size={30} className="text-orange-500"/>,title:"Advanced Diagnostics",desc:"Computer scanning for modern vehicles. Identify issues fast with precision OBD-II tools.",badge:"Most Popular"},
+              {icon:<Thermometer size={30} className="text-blue-400"/>,title:"Radiator Specialist",desc:"Precision cooling system repairs, flushes, and replacements to keep your engine running cool.",badge:null},
+              {icon:<ShieldCheck size={30} className="text-green-400"/>,title:"General Repair",desc:"Quality maintenance for all makes and models — from oil changes to full brake overhauls.",badge:null},
+            ].map(({icon,title,desc,badge})=>(
+              <div key={title} className="bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/50 transition-all relative">
+                {badge&&<span className="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">{badge}</span>}
+                <div className="mb-4">{icon}</div>
+                <h3 className="text-white font-bold text-lg mb-2">{title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <button onClick={()=>navigate("services")} className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-semibold transition-colors">
+              See all services <ChevronRight size={16}/>
+            </button>
+          </div>
+        </div>
+      </section>
+      {/* Reviews Preview */}
+      <section className="bg-slate-800 py-16 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-extrabold text-white mb-3">Trusted by <span className="text-orange-500">Vancouver Drivers</span></h2>
+          <p className="text-slate-400 mb-8">Highly rated for quick, no-hassle repairs and honest diagnostic reporting.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            {[
+              {name:"Sarah K.",text:"Diagnosed and fixed my Honda same day. Honest pricing and super fast."},
+              {name:"Marcus T.",text:"No upselling, just straight answers and quality work. Radiator done in under 2 hours."},
+            ].map(({name,text})=>(
+              <div key={name} className="bg-slate-900 border border-slate-700 rounded-2xl p-5 text-left">
+                <div className="flex mb-2">{Array(5).fill(0).map((_,i)=><Star key={i} size={13} className="text-orange-500 fill-orange-500"/>)}</div>
+                <p className="text-slate-300 text-sm mb-3">"{text}"</p>
+                <span className="text-slate-500 text-xs">— {name}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={()=>navigate("reviews")} className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-semibold transition-colors">
+            Read all reviews <ChevronRight size={16}/>
+          </button>
+        </div>
+      </section>
+      {/* CTA */}
+      <section className="bg-gradient-to-r from-orange-600 to-orange-500 py-16 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl font-extrabold text-white mb-4">Ready to Get Back on the Road?</h2>
+          <p className="text-orange-100 mb-8">Open every day 9AM–8PM. Call us or book your appointment online.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="tel:+16044414006" className="bg-white text-orange-600 font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 hover:bg-orange-50 transition-colors">
+              <Phone size={18}/> Call +1 604-441-4006
+            </a>
+            <button onClick={()=>navigate("quote")} className="bg-orange-700 hover:bg-orange-800 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 transition-colors">
+              <CalendarCheck size={18}/> Book Online
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── SERVICES PAGE ────────────────────────────────────────────────────────────
+function ServicesPage({ navigate }) {
+  const services = [
+    { icon:<Zap size={36} className="text-orange-500"/>, title:"Advanced Diagnostics", price:"From $80", time:"1–2 hrs", desc:"Using state-of-the-art OBD-II scanners, we read error codes, analyze sensor data, and identify issues across all modern vehicle systems — engine, transmission, ABS, airbags, and more.", features:["Full computer scan report","Check engine light diagnosis","Pre-purchase inspection","Emissions readiness check"], badge:"Most Popular" },
+    { icon:<Thermometer size={36} className="text-blue-400"/>, title:"Radiator & Cooling System", price:"From $100", time:"1–3 hrs", desc:"Your cooling system is critical to engine health. We handle everything from minor leaks to full radiator replacements with precision and quality parts.", features:["Radiator flush & fill","Coolant leak repair","Thermostat replacement","Water pump service"], badge:null },
+    { icon:<Wrench size={36} className="text-green-400"/>, title:"Brakes & Safety", price:"From $150/axle", time:"1–2 hrs", desc:"Don't compromise on stopping power. Our certified technicians inspect and replace pads, rotors, calipers, and brake fluid to keep you and your family safe.", features:["Brake pad replacement","Rotor resurfacing/replacement","Caliper service","Brake fluid flush"], badge:"Safety Critical" },
+    { icon:<Battery size={36} className="text-yellow-400"/>, title:"Electrical & Battery", price:"From $60", time:"30 min–2 hrs", desc:"From dead batteries to complex wiring issues, we diagnose and repair your vehicle's electrical systems quickly and accurately.", features:["Battery test & replacement","Alternator diagnosis","Starter motor service","Fuse & wiring repair"], badge:null },
+    { icon:<Car size={36} className="text-purple-400"/>, title:"Oil Change & Maintenance", price:"From $60", time:"30–45 min", desc:"Regular maintenance is the key to a long-lasting vehicle. We offer full-service oil changes and comprehensive maintenance packages for all makes and models.", features:["Conventional & synthetic oil","Filter replacement","Fluid top-up","Multi-point inspection"], badge:"Quick Service" },
+    { icon:<ShieldCheck size={36} className="text-red-400"/>, title:"Suspension & Steering", price:"From $120", time:"1–4 hrs", desc:"Rough ride? Pulling to one side? Our technicians inspect and repair shocks, struts, tie rods, and alignment to restore smooth, safe handling.", features:["Shock & strut replacement","Wheel alignment","Tie rod & ball joint","Power steering service"], badge:null },
+  ];
+  return (
+    <div className="bg-slate-900 min-h-screen pt-24 pb-20 px-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-14">
+          <span className="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">What We Do</span>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">Our <span className="text-orange-500">Services</span></h1>
+          <p className="text-slate-400 max-w-xl mx-auto">Expert auto care for all makes and models. Transparent pricing, fast turnaround, and certified technicians every time.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
+          {services.map(({icon,title,price,time,desc,features,badge})=>(
+            <div key={title} className="relative bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/40 transition-all">
+              {badge&&<span className={`absolute top-4 right-4 text-white text-xs font-bold px-3 py-1 rounded-full ${badge==="Safety Critical"?"bg-red-500":badge==="Quick Service"?"bg-green-600":"bg-orange-500"}`}>{badge}</span>}
+              <div className="mb-4">{icon}</div>
+              <div className="flex items-baseline gap-3 mb-2">
+                <h3 className="text-white font-bold text-xl">{title}</h3>
+              </div>
+              <div className="flex gap-4 mb-3">
+                <span className="text-orange-400 text-sm font-bold">{price}</span>
+                <span className="text-slate-500 text-sm flex items-center gap-1"><Clock size={12}/>{time}</span>
+              </div>
+              <p className="text-slate-400 text-sm leading-relaxed mb-4">{desc}</p>
+              <ul className="grid grid-cols-2 gap-1">
+                {features.map(f=>(
+                  <li key={f} className="flex items-center gap-2 text-slate-300 text-xs"><CheckCircle size={12} className="text-green-400 flex-shrink-0"/>{f}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="bg-gradient-to-r from-orange-600 to-orange-500 rounded-2xl p-8 text-center">
+          <h3 className="text-white font-extrabold text-2xl mb-2">Not sure what you need?</h3>
+          <p className="text-orange-100 mb-6">Book a diagnostic and we'll tell you exactly what's going on — no guesswork, no upselling.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onClick={()=>navigate("quote")} className="bg-white text-orange-600 font-bold px-8 py-3 rounded-full flex items-center justify-center gap-2 hover:bg-orange-50 transition-colors">
+              <CalendarCheck size={16}/> Book a Diagnostic
+            </button>
+            <a href="tel:+16044414006" className="bg-orange-700 text-white font-bold px-8 py-3 rounded-full flex items-center justify-center gap-2 hover:bg-orange-800 transition-colors">
+              <Phone size={16}/> Call Us
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── REVIEWS PAGE ─────────────────────────────────────────────────────────────
+function ReviewsPage({ navigate }) {
+  const reviews = [
+    { name:"Sarah K.", car:"Honda Civic 2019", rating:5, date:"Feb 2026", text:"Brought my Honda in with a mystery engine light. They diagnosed and fixed it the same day. Honest pricing and super fast turnaround — I was back on the road by noon.", service:"Diagnostics" },
+    { name:"Marcus T.", car:"Toyota RAV4 2021", rating:5, date:"Jan 2026", text:"Best auto shop in Vancouver, hands down. No upselling, just straight answers and quality work. My radiator was done in under 2 hours. Already recommended them to three friends.", service:"Radiator Service" },
+    { name:"Priya M.", car:"Mazda CX-5 2020", rating:5, date:"Jan 2026", text:"Being open every day made this incredibly convenient for my schedule. Friendly staff, completely transparent about the diagnostics, and my car runs better than when I bought it.", service:"General Repair" },
+    { name:"Derek L.", car:"Ford F-150 2018", rating:5, date:"Dec 2025", text:"Quick, no-hassle repairs and honest diagnostic reporting. They found an issue two other shops missed and fixed it for half the price I was quoted elsewhere. Incredible value.", service:"Diagnostics" },
+    { name:"Jennifer W.", car:"BMW 3 Series 2017", rating:5, date:"Dec 2025", text:"Brought my BMW in for a brake job. They were upfront about costs, finished ahead of schedule, and the work was flawless. Will never go anywhere else in Vancouver.", service:"Brakes" },
+    { name:"Kevin C.", car:"Hyundai Elantra 2022", rating:5, date:"Nov 2025", text:"Called in the morning, had my car in by lunch, fixed and picked up by 5PM. Same-day service is real here. The team is professional, knowledgeable, and genuinely care.", service:"Electrical" },
+    { name:"Aisha B.", car:"Nissan Rogue 2020", rating:5, date:"Nov 2025", text:"I'm usually nervous about auto shops as a woman going alone, but the team here was respectful, explained everything clearly, and never made me feel pressured. Highly recommend.", service:"Oil Change & Maintenance" },
+    { name:"Tom R.", car:"Subaru Outback 2016", rating:4, date:"Oct 2025", text:"Great experience overall. They fixed my suspension issues and the car handles like new. Took slightly longer than estimated but they called to update me, which I appreciated.", service:"Suspension" },
+  ];
+  const avg = (reviews.reduce((a,r)=>a+r.rating,0)/reviews.length).toFixed(1);
+  return (
+    <div className="bg-slate-900 min-h-screen pt-24 pb-20 px-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <span className="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">Customer Reviews</span>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">What Our <span className="text-orange-500">Customers Say</span></h1>
+          <p className="text-slate-400 max-w-xl mx-auto mb-8">Real reviews from real Vancouver drivers. We let our work speak for itself.</p>
+          <div className="inline-flex items-center gap-4 bg-slate-800 border border-slate-700 rounded-2xl px-8 py-5">
+            <div className="text-5xl font-extrabold text-white">{avg}</div>
+            <div>
+              <div className="flex mb-1">{Array(5).fill(0).map((_,i)=><Star key={i} size={18} className="text-orange-500 fill-orange-500"/>)}</div>
+              <p className="text-slate-400 text-sm">{reviews.length} verified reviews</p>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+          {reviews.map(({name,car,rating,date,text,service})=>(
+            <div key={name} className="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <p className="text-white font-bold text-sm">{name}</p>
+                  <p className="text-slate-500 text-xs">{car}</p>
+                </div>
+                <span className="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">{date}</span>
+              </div>
+              <div className="flex mb-3">{Array(rating).fill(0).map((_,i)=><Star key={i} size={13} className="text-orange-500 fill-orange-500"/>)}</div>
+              <p className="text-slate-300 text-sm leading-relaxed mb-3">"{text}"</p>
+              <span className="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">{service}</span>
+            </div>
+          ))}
+        </div>
+        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center">
+          <h3 className="text-white font-extrabold text-xl mb-2">Ready to experience the difference?</h3>
+          <p className="text-slate-400 text-sm mb-5">Join hundreds of satisfied Vancouver drivers. Book your appointment today.</p>
+          <button onClick={()=>navigate("quote")} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-full inline-flex items-center gap-2 transition-colors">
+            <CalendarCheck size={16}/> Book Now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── LOCATION PAGE ────────────────────────────────────────────────────────────
+function LocationPage() {
+  return (
+    <div className="bg-slate-900 min-h-screen pt-24 pb-20 px-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <span className="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">Find Us</span>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">Our <span className="text-orange-500">Location</span></h1>
+          <p className="text-slate-400">Conveniently located on Cambie Street — easy access, free parking on site.</p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+          {/* Info */}
+          <div className="flex flex-col gap-5">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0"><MapPin className="text-orange-500" size={22}/></div>
+              <div>
+                <p className="text-white font-bold mb-1">Address</p>
+                <p className="text-slate-400 text-sm leading-relaxed">8655 Cambie St., Unit 3<br/>Vancouver, BC V6P 3J9<br/>Canada</p>
+                <a href="https://maps.google.com/?q=8655+Cambie+St+Vancouver+BC" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-orange-400 hover:text-orange-300 text-xs font-semibold mt-2 transition-colors">
+                  Get Directions <ChevronRight size={12}/>
+                </a>
+              </div>
+            </div>
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0"><Clock className="text-orange-500" size={22}/></div>
+              <div className="w-full">
+                <p className="text-white font-bold mb-3">Hours of Operation</p>
+                <div className="flex flex-col gap-1.5">
+                  {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(d=>(
+                    <div key={d} className="flex justify-between text-sm">
+                      <span className="text-slate-400">{d}</span>
+                      <span className="text-green-400 font-semibold">9:00 AM – 8:00 PM</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0"><Phone className="text-orange-500" size={22}/></div>
+              <div>
+                <p className="text-white font-bold mb-1">Phone</p>
+                <a href="tel:+16044414006" className="text-orange-400 hover:text-orange-300 font-bold text-lg transition-colors">+1 604-441-4006</a>
+                <p className="text-slate-500 text-xs mt-1">Tap to call — available during business hours</p>
+              </div>
+            </div>
+            <a href="tel:+16044414006" className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-500/20 text-base">
+              <Phone size={18}/> Call Now — One Tap
+            </a>
+          </div>
+          {/* Map */}
+          <div className="flex flex-col gap-5">
+            <div className="rounded-2xl overflow-hidden border border-slate-700 shadow-xl" style={{height:380}}>
+              <iframe title="Quick Fix Auto Location" width="100%" height="100%" style={{border:0}} loading="lazy"
+                src="https://www.google.com/maps?q=8655+Cambie+St+Unit+3+Vancouver+BC&output=embed"/>
+            </div>
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+              <p className="text-white font-bold mb-3 text-sm">Getting Here</p>
+              <div className="flex flex-col gap-2 text-xs text-slate-400">
+                <div className="flex items-center gap-2"><span className="w-5 h-5 bg-blue-500 rounded text-white flex items-center justify-center text-xs font-bold">🚌</span> Nearest bus stop: Cambie & W 71st Ave</div>
+                <div className="flex items-center gap-2"><span className="w-5 h-5 bg-green-600 rounded text-white flex items-center justify-center text-xs font-bold">P</span> Free on-site parking available</div>
+                <div className="flex items-center gap-2"><span className="w-5 h-5 bg-orange-500 rounded text-white flex items-center justify-center text-xs font-bold">🚗</span> Off Marine Drive, easy highway access</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── QUOTE PAGE ───────────────────────────────────────────────────────────────
+function QuotePage() {
+  const [form, setForm] = useState({ name:"", phone:"", car:"", service:"", notes:"" });
+  const [msgs, setMsgs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const bottomRef = useRef(null);
+  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); },[msgs,loading]);
+
+  const handleSubmit = async () => {
+    if (!form.name||!form.phone||!form.car||!form.service) return;
+    setSubmitted(true); setLoading(true);
+    const userMsg = `Quote request — Name: ${form.name}, Phone: ${form.phone}, Vehicle: ${form.car}, Service: ${form.service}${form.notes?`, Notes: ${form.notes}`:""}`;
+    setMsgs([{role:"user",text:userMsg}]);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model:"claude-sonnet-4-20250514", max_tokens:1000,
+          system:`You are a friendly service advisor at Quick Fix Auto Limited, Vancouver, BC. Address: 8655 Cambie St., Unit 3. Phone: +1 604-441-4006. Hours: 9AM–8PM every day.
+Respond to quote requests warmly and professionally. Acknowledge their name and vehicle, give a helpful pricing estimate (note final price needs in-person assessment), mention same-day availability, and invite them to call or come in. Keep to 4–5 sentences. Sign off as "— The Quick Fix Auto Team 🔧"`,
+          messages:[{role:"user",content:userMsg}]
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.map(b=>b.text||"").join("")||"Thanks! Please call +1 604-441-4006 for your quote.";
+      setMsgs(m=>[...m,{role:"assistant",text:reply}]);
+    } catch {
+      setMsgs(m=>[...m,{role:"assistant",text:"Thanks for reaching out! Please call us at +1 604-441-4006 and we'll get you a quote right away."}]);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="bg-gradient-to-b from-slate-900 to-blue-950 min-h-screen pt-24 pb-20 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-400 text-xs font-bold px-4 py-1 rounded-full mb-4 tracking-widest uppercase"><Bot size={13}/> AI-Powered</span>
+          <h1 className="text-4xl font-extrabold text-white mb-3">Request a <span className="text-orange-500">Quote</span></h1>
+          <p className="text-slate-400">Fill in your details and our AI service advisor will respond instantly with a personalized estimate.</p>
+        </div>
+        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-7 shadow-2xl">
+          {!submitted ? (
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[["name","Your Full Name","text"],["phone","Phone Number","tel"]].map(([n,p,t])=>(
+                  <input key={n} name={n} type={t} placeholder={p} value={form[n]} onChange={e=>setForm(f=>({...f,[e.target.name]:e.target.value}))}
+                    className="bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"/>
+                ))}
+              </div>
+              <input name="car" type="text" placeholder="Car Make & Model (e.g. Toyota Camry 2020)" value={form.car} onChange={e=>setForm(f=>({...f,car:e.target.value}))}
+                className="bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full"/>
+              <select name="service" value={form.service} onChange={e=>setForm(f=>({...f,service:e.target.value}))}
+                className="bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full">
+                <option value="" disabled>Select Service Needed</option>
+                {["Advanced Diagnostics","Radiator / Cooling System","Brakes","Electrical / Battery","Oil Change & Maintenance","Suspension & Steering","General Repair","Not Sure — Need Advice"].map(s=>(
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+              <textarea name="notes" rows={3} placeholder="Any additional notes (optional)..." value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}
+                className="bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full resize-none"/>
+              <button onClick={handleSubmit} disabled={!form.name||!form.phone||!form.car||!form.service}
+                className="mt-1 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-500/20 text-base">
+                <Send size={17}/> Get My Instant Quote
+              </button>
+              {(!form.name||!form.phone||!form.car||!form.service) && <p className="text-slate-500 text-xs text-center flex items-center justify-center gap-1"><AlertCircle size={11}/> Please fill in all required fields</p>}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 min-h-48">
+              {msgs.map((m,i)=>(
+                <div key={i} className={`flex gap-3 ${m.role==="assistant"?"items-start":"items-end flex-row-reverse"}`}>
+                  {m.role==="assistant"&&<div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0"><Bot size={16} className="text-white"/></div>}
+                  <div className={`rounded-2xl px-4 py-3 text-sm max-w-sm leading-relaxed ${m.role==="assistant"?"bg-slate-700 text-slate-200":"bg-orange-500 text-white"}`}>{m.text}</div>
+                </div>
+              ))}
+              {loading&&(
+                <div className="flex gap-3 items-start">
+                  <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center"><Bot size={16} className="text-white"/></div>
+                  <div className="bg-slate-700 rounded-2xl px-4 py-3 flex items-center gap-2 text-slate-400 text-sm"><Loader size={14} className="animate-spin"/> Generating your quote...</div>
+                </div>
+              )}
+              <div ref={bottomRef}/>
+              {!loading&&msgs.length>=2&&(
+                <div className="flex flex-col gap-3 mt-2">
+                  <div className="border-t border-slate-700 pt-4 flex flex-col sm:flex-row gap-3">
+                    <a href="tel:+16044414006" className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm">
+                      <Phone size={15}/> Call to Confirm
+                    </a>
+                    <button onClick={()=>{setForm({name:"",phone:"",car:"",service:"",notes:""});setMsgs([]);setSubmitted(false);}}
+                      className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm">
+                      New Quote Request
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
+function Footer({ navigate }) {
+  return (
+    <footer className="bg-slate-900 border-t border-slate-800 py-12 px-4">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div>
+          <div className="flex items-center gap-2 mb-3"><Wrench className="text-orange-500" size={18}/><span className="text-white font-bold">Quick Fix Auto Limited</span></div>
+          <p className="text-slate-500 text-xs leading-relaxed">Professional auto repair, precision radiator service, and advanced vehicle diagnostics in Vancouver, BC.</p>
+        </div>
+        <div>
+          <p className="text-white font-bold text-sm mb-3">Quick Links</p>
+          <div className="flex flex-col gap-2">
+            {[["home","Home"],["services","Services"],["reviews","Reviews"],["location","Location"],["quote","Book Appointment"]].map(([id,label])=>(
+              <button key={id} onClick={()=>navigate(id)} className="text-slate-400 hover:text-orange-400 text-xs text-left transition-colors">{label}</button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-white font-bold text-sm mb-3">Contact</p>
+          <div className="flex flex-col gap-2 text-xs text-slate-400">
+            <span className="flex items-center gap-2"><MapPin size={12} className="text-orange-500"/>8655 Cambie St., Unit 3, Vancouver, BC</span>
+            <a href="tel:+16044414006" className="flex items-center gap-2 text-orange-400 hover:text-orange-300"><Phone size={12}/>+1 604-441-4006</a>
+            <span className="flex items-center gap-2"><Clock size={12} className="text-orange-500"/>9:00 AM – 8:00 PM · Every Day</span>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-slate-800 pt-6 text-center text-slate-600 text-xs">
+        © 2026 Quick Fix Auto Limited. All rights reserved.
+      </div>
+    </footer>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+export default function App() {
+  const { page, navigate } = useRouter();
+  useEffect(()=>{ window.scrollTo({top:0,behavior:"smooth"}); },[page]);
+
+  return (
+    <div className="font-sans bg-slate-900 min-h-screen">
+      <Header page={page} navigate={navigate}/>
+      {page==="home" && <HomePage navigate={navigate}/>}
+      {page==="services" && <ServicesPage navigate={navigate}/>}
+      {page==="reviews" && <ReviewsPage navigate={navigate}/>}
+      {page==="location" && <LocationPage/>}
+      {page==="quote" && <QuotePage/>}
+      <Footer navigate={navigate}/>
+      <ChatWidget/>
+    </div>
+  );
+}
