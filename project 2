@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quick Fix Auto Limited</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'] } } }
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  html { scroll-behavior: smooth; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .nav-link.active { color: #f97316; background: rgba(249,115,22,0.15); }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+  .dot1{animation:blink 1.2s infinite 0s}
+  .dot2{animation:blink 1.2s infinite 0.2s}
+  .dot3{animation:blink 1.2s infinite 0.4s}
+  .bounce-arrow{animation:bounce 1.5s infinite}
+  .spin{animation:spin 1s linear infinite}
+  select option { background:#1e293b; color:#fff; }
+</style>
+</head>
+<body class="bg-slate-900 font-sans">
+
+<!-- ═══════════════════════════════════════════════════════ HEADER -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-slate-900 border-b border-slate-700 shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
+    <button onclick="navigate('home')" class="flex items-center gap-2">
+      <i data-lucide="wrench" class="text-orange-500 w-5 h-5"></i>
+      <span class="text-white font-bold text-lg tracking-tight">Quick Fix <span class="text-orange-500">Auto</span></span>
+    </button>
+    <nav class="hidden md:flex items-center gap-1" id="desktop-nav">
+      <button onclick="navigate('home')" class="nav-link flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all" data-page="home"><i data-lucide="home" class="w-3.5 h-3.5"></i>Home</button>
+      <button onclick="navigate('services')" class="nav-link flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all" data-page="services"><i data-lucide="settings" class="w-3.5 h-3.5"></i>Services</button>
+      <button onclick="navigate('reviews')" class="nav-link flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all" data-page="reviews"><i data-lucide="users" class="w-3.5 h-3.5"></i>Reviews</button>
+      <button onclick="navigate('location')" class="nav-link flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all" data-page="location"><i data-lucide="navigation" class="w-3.5 h-3.5"></i>Location</button>
+    </nav>
+    <button onclick="navigate('quote')" class="hidden md:inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-5 py-2 rounded-full transition-colors">
+      <i data-lucide="calendar-check" class="w-4 h-4"></i> Book Now
+    </button>
+    <button onclick="toggleMobileMenu()" class="md:hidden text-white" id="mobile-menu-btn">
+      <i data-lucide="menu" class="w-6 h-6" id="menu-icon"></i>
+    </button>
+  </div>
+  <div class="md:hidden bg-slate-900 border-t border-slate-700 px-4 pb-4 flex-col gap-2 hidden" id="mobile-menu">
+    <button onclick="navigate('home');closeMobileMenu()" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 text-left"><i data-lucide="home" class="w-3.5 h-3.5"></i>Home</button>
+    <button onclick="navigate('services');closeMobileMenu()" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 text-left"><i data-lucide="settings" class="w-3.5 h-3.5"></i>Services</button>
+    <button onclick="navigate('reviews');closeMobileMenu()" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 text-left"><i data-lucide="users" class="w-3.5 h-3.5"></i>Reviews</button>
+    <button onclick="navigate('location');closeMobileMenu()" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 text-left"><i data-lucide="navigation" class="w-3.5 h-3.5"></i>Location</button>
+    <button onclick="navigate('quote');closeMobileMenu()" class="bg-orange-500 text-white text-sm font-bold px-5 py-2 rounded-full text-center mt-1">Book Now</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ HOME PAGE -->
+<div id="page-home" class="page active">
+
+  <!-- Hero -->
+  <section class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 pt-32 pb-24 px-4 overflow-hidden">
+    <div class="absolute inset-0 opacity-5" style="background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:20px 20px"></div>
+    <div class="max-w-4xl mx-auto relative z-10 text-center">
+      <span class="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-5 tracking-widest uppercase">Vancouver's Trusted Auto Shop</span>
+      <h1 class="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-5">Expert Auto Repairs &<br/><span class="text-orange-500">Diagnostics</span> in Vancouver</h1>
+      <p class="text-slate-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto">Fast, reliable, and professional service you can trust. Located at <span class="text-orange-400 font-semibold">8655 Cambie St., Vancouver, BC</span></p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="navigate('quote')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-full text-base transition-all shadow-lg flex items-center justify-center gap-2">
+          <i data-lucide="calendar-check" class="w-5 h-5"></i> Book Appointment
+        </button>
+        <button onclick="navigate('services')" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-full text-base transition-all flex items-center justify-center gap-2">
+          <i data-lucide="wrench" class="w-5 h-5"></i> View Services
+        </button>
+      </div>
+    </div>
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-slate-500 bounce-arrow"><i data-lucide="chevron-down" class="w-5 h-5"></i></div>
+  </section>
+
+  <!-- Trust Bar -->
+  <div class="bg-slate-800 border-y border-slate-700">
+    <div class="max-w-4xl mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="flex items-center justify-center gap-3 text-white font-semibold text-sm"><i data-lucide="shield-check" class="text-orange-500 w-6 h-6"></i>Certified Technicians</div>
+      <div class="flex items-center justify-center gap-3 text-white font-semibold text-sm"><i data-lucide="zap" class="text-orange-500 w-6 h-6"></i>Same-Day Service</div>
+      <div class="flex items-center justify-center gap-3 text-white font-semibold text-sm"><i data-lucide="clock" class="text-orange-500 w-6 h-6"></i>Open 7 Days a Week</div>
+    </div>
+  </div>
+
+  <!-- Services Preview -->
+  <section class="bg-slate-900 py-20 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-extrabold text-white mb-3">Our <span class="text-orange-500">Services</span></h2>
+        <p class="text-slate-400">Professional auto care delivered with speed, honesty, and precision.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/50 transition-all relative">
+          <span class="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
+          <i data-lucide="zap" class="text-orange-500 w-8 h-8 mb-4"></i>
+          <h3 class="text-white font-bold text-lg mb-2">Advanced Diagnostics</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Computer scanning for modern vehicles. Identify issues fast with precision OBD-II tools.</p>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/50 transition-all">
+          <i data-lucide="thermometer" class="text-blue-400 w-8 h-8 mb-4"></i>
+          <h3 class="text-white font-bold text-lg mb-2">Radiator Specialist</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Precision cooling system repairs, flushes, and replacements to keep your engine running cool.</p>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/50 transition-all">
+          <i data-lucide="shield-check" class="text-green-400 w-8 h-8 mb-4"></i>
+          <h3 class="text-white font-bold text-lg mb-2">General Repair</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Quality maintenance for all makes and models — from oil changes to full brake overhauls.</p>
+        </div>
+      </div>
+      <div class="text-center">
+        <button onclick="navigate('services')" class="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-semibold transition-colors">
+          See all services <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Preview -->
+  <section class="bg-slate-800 py-16 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-3xl font-extrabold text-white mb-3">Trusted by <span class="text-orange-500">Vancouver Drivers</span></h2>
+      <p class="text-slate-400 mb-8">Highly rated for quick, no-hassle repairs and honest diagnostic reporting.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 text-left">
+          <div class="flex mb-2">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm mb-3">"Diagnosed and fixed my Honda same day. Honest pricing and super fast."</p>
+          <span class="text-slate-500 text-xs">— Sarah K.</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 text-left">
+          <div class="flex mb-2">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm mb-3">"No upselling, just straight answers and quality work. Radiator done in under 2 hours."</p>
+          <span class="text-slate-500 text-xs">— Marcus T.</span>
+        </div>
+      </div>
+      <button onclick="navigate('reviews')" class="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-semibold transition-colors">
+        Read all reviews <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="bg-gradient-to-r from-orange-600 to-orange-500 py-16 px-4">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-3xl font-extrabold text-white mb-4">Ready to Get Back on the Road?</h2>
+      <p class="text-orange-100 mb-8">Open every day 9AM–8PM. Call us or book your appointment online.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="tel:+16044414006" class="bg-white text-orange-600 font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 hover:bg-orange-50 transition-colors">
+          <i data-lucide="phone" class="w-5 h-5"></i> Call +1 604-441-4006
+        </a>
+        <button onclick="navigate('quote')" class="bg-orange-700 hover:bg-orange-800 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 transition-colors">
+          <i data-lucide="calendar-check" class="w-5 h-5"></i> Book Online
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ SERVICES PAGE -->
+<div id="page-services" class="page">
+  <div class="bg-slate-900 min-h-screen pt-24 pb-20 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14">
+        <span class="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">What We Do</span>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Our <span class="text-orange-500">Services</span></h1>
+        <p class="text-slate-400 max-w-xl mx-auto">Expert auto care for all makes and models. Transparent pricing, fast turnaround, and certified technicians every time.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
+        <!-- Diagnostics -->
+        <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/40 transition-all">
+          <span class="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
+          <i data-lucide="zap" class="text-orange-500 w-9 h-9 mb-4"></i>
+          <h3 class="text-white font-bold text-xl mb-1">Advanced Diagnostics</h3>
+          <div class="flex gap-4 mb-3"><span class="text-orange-400 text-sm font-bold">From $80</span><span class="text-slate-500 text-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>1–2 hrs</span></div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Using state-of-the-art OBD-II scanners, we identify issues across all modern vehicle systems — engine, transmission, ABS, airbags, and more.</p>
+          <ul class="grid grid-cols-2 gap-1">
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Full computer scan report</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Check engine light diagnosis</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Pre-purchase inspection</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Emissions readiness check</li>
+          </ul>
+        </div>
+        <!-- Radiator -->
+        <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/40 transition-all">
+          <i data-lucide="thermometer" class="text-blue-400 w-9 h-9 mb-4"></i>
+          <h3 class="text-white font-bold text-xl mb-1">Radiator &amp; Cooling System</h3>
+          <div class="flex gap-4 mb-3"><span class="text-orange-400 text-sm font-bold">From $100</span><span class="text-slate-500 text-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>1–3 hrs</span></div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">We handle everything from minor leaks to full radiator replacements with precision and quality parts to keep your engine running cool.</p>
+          <ul class="grid grid-cols-2 gap-1">
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Radiator flush &amp; fill</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Coolant leak repair</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Thermostat replacement</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Water pump service</li>
+          </ul>
+        </div>
+        <!-- Brakes -->
+        <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/40 transition-all">
+          <span class="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Safety Critical</span>
+          <i data-lucide="shield-check" class="text-green-400 w-9 h-9 mb-4"></i>
+          <h3 class="text-white font-bold text-xl mb-1">Brakes &amp; Safety</h3>
+          <div class="flex gap-4 mb-3"><span class="text-orange-400 text-sm font-bold">From $150/axle</span><span class="text-slate-500 text-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>1–2 hrs</span></div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Our certified technicians inspect and replace pads, rotors, calipers, and brake fluid to keep you and your family safe.</p>
+          <ul class="grid grid-cols-2 gap-1">
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Brake pad replacement</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Rotor resurfacing</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Caliper service</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Brake fluid flush</li>
+          </ul>
+        </div>
+        <!-- Electrical -->
+        <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/40 transition-all">
+          <i data-lucide="battery" class="text-yellow-400 w-9 h-9 mb-4"></i>
+          <h3 class="text-white font-bold text-xl mb-1">Electrical &amp; Battery</h3>
+          <div class="flex gap-4 mb-3"><span class="text-orange-400 text-sm font-bold">From $60</span><span class="text-slate-500 text-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>30 min–2 hrs</span></div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">From dead batteries to complex wiring issues, we diagnose and repair your vehicle's electrical systems quickly and accurately.</p>
+          <ul class="grid grid-cols-2 gap-1">
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Battery test &amp; replacement</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Alternator diagnosis</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Starter motor service</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Fuse &amp; wiring repair</li>
+          </ul>
+        </div>
+        <!-- Oil Change -->
+        <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/40 transition-all">
+          <span class="absolute top-4 right-4 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">Quick Service</span>
+          <i data-lucide="car" class="text-purple-400 w-9 h-9 mb-4"></i>
+          <h3 class="text-white font-bold text-xl mb-1">Oil Change &amp; Maintenance</h3>
+          <div class="flex gap-4 mb-3"><span class="text-orange-400 text-sm font-bold">From $60</span><span class="text-slate-500 text-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>30–45 min</span></div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Regular maintenance is the key to a long-lasting vehicle. Full-service oil changes and maintenance packages for all makes and models.</p>
+          <ul class="grid grid-cols-2 gap-1">
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Conventional &amp; synthetic oil</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Filter replacement</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Fluid top-up</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Multi-point inspection</li>
+          </ul>
+        </div>
+        <!-- Suspension -->
+        <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-7 hover:border-orange-500/40 transition-all">
+          <i data-lucide="shield-check" class="text-red-400 w-9 h-9 mb-4"></i>
+          <h3 class="text-white font-bold text-xl mb-1">Suspension &amp; Steering</h3>
+          <div class="flex gap-4 mb-3"><span class="text-orange-400 text-sm font-bold">From $120</span><span class="text-slate-500 text-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>1–4 hrs</span></div>
+          <p class="text-slate-400 text-sm leading-relaxed mb-4">Rough ride? Pulling to one side? We inspect and repair shocks, struts, tie rods, and alignment to restore smooth, safe handling.</p>
+          <ul class="grid grid-cols-2 gap-1">
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Shock &amp; strut replacement</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Wheel alignment</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Tie rod &amp; ball joint</li>
+            <li class="flex items-center gap-2 text-slate-300 text-xs"><i data-lucide="check-circle" class="text-green-400 w-3 h-3"></i>Power steering service</li>
+          </ul>
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-orange-600 to-orange-500 rounded-2xl p-8 text-center">
+        <h3 class="text-white font-extrabold text-2xl mb-2">Not sure what you need?</h3>
+        <p class="text-orange-100 mb-6">Book a diagnostic and we'll tell you exactly what's going on — no guesswork, no upselling.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button onclick="navigate('quote')" class="bg-white text-orange-600 font-bold px-8 py-3 rounded-full flex items-center justify-center gap-2 hover:bg-orange-50 transition-colors">
+            <i data-lucide="calendar-check" class="w-4 h-4"></i> Book a Diagnostic
+          </button>
+          <a href="tel:+16044414006" class="bg-orange-700 text-white font-bold px-8 py-3 rounded-full flex items-center justify-center gap-2 hover:bg-orange-800 transition-colors">
+            <i data-lucide="phone" class="w-4 h-4"></i> Call Us
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ REVIEWS PAGE -->
+<div id="page-reviews" class="page">
+  <div class="bg-slate-900 min-h-screen pt-24 pb-20 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">Customer Reviews</span>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">What Our <span class="text-orange-500">Customers Say</span></h1>
+        <p class="text-slate-400 max-w-xl mx-auto mb-8">Real reviews from real Vancouver drivers. We let our work speak for itself.</p>
+        <div class="inline-flex items-center gap-4 bg-slate-800 border border-slate-700 rounded-2xl px-8 py-5">
+          <div class="text-5xl font-extrabold text-white">5.0</div>
+          <div><div class="text-xl mb-1">⭐⭐⭐⭐⭐</div><p class="text-slate-400 text-sm">8 verified reviews</p></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Sarah K.</p><p class="text-slate-500 text-xs">Honda Civic 2019</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Feb 2026</span></div>
+          <div class="mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"Brought my Honda in with a mystery engine light. Diagnosed and fixed it same day. Honest pricing and super fast — back on the road by noon."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">Diagnostics</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Marcus T.</p><p class="text-slate-500 text-xs">Toyota RAV4 2021</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Jan 2026</span></div>
+          <div class="mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"Best auto shop in Vancouver. No upselling, just straight answers and quality work. My radiator was done in under 2 hours. Already recommended them to three friends."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">Radiator Service</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Priya M.</p><p class="text-slate-500 text-xs">Mazda CX-5 2020</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Jan 2026</span></div>
+          <div class="mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"Being open every day made this incredibly convenient. Completely transparent about the diagnostics, and my car runs better than when I bought it."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">General Repair</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Derek L.</p><p class="text-slate-500 text-xs">Ford F-150 2018</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Dec 2025</span></div>
+          <div class="mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"They found an issue two other shops missed and fixed it for half the price I was quoted elsewhere. Quick, no-hassle repairs and honest diagnostic reporting."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">Diagnostics</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Jennifer W.</p><p class="text-slate-500 text-xs">BMW 3 Series 2017</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Dec 2025</span></div>
+          <div class="mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"Brought my BMW in for a brake job. Upfront about costs, finished ahead of schedule, and the work was flawless. Will never go anywhere else in Vancouver."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">Brakes</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Kevin C.</p><p class="text-slate-500 text-xs">Hyundai Elantra 2022</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Nov 2025</span></div>
+          <div class="mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"Called in the morning, car in by lunch, fixed and picked up by 5PM. Same-day service is real here. Professional, knowledgeable, and they genuinely care."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">Electrical</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Aisha B.</p><p class="text-slate-500 text-xs">Nissan Rogue 2020</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Nov 2025</span></div>
+          <div class="mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"The team was respectful, explained everything clearly, and never made me feel pressured. Highly recommend to everyone, especially first-timers."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">Oil Change</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-orange-500/30 transition-all">
+          <div class="flex justify-between items-start mb-3"><div><p class="text-white font-bold text-sm">Tom R.</p><p class="text-slate-500 text-xs">Subaru Outback 2016</p></div><span class="bg-slate-700 text-slate-400 text-xs px-2 py-1 rounded-lg">Oct 2025</span></div>
+          <div class="mb-3">⭐⭐⭐⭐</div>
+          <p class="text-slate-300 text-sm leading-relaxed mb-3">"Great experience overall. Fixed my suspension issues and the car handles like new. Took slightly longer than estimated but they called to keep me updated."</p>
+          <span class="inline-block bg-orange-500/15 text-orange-400 text-xs px-2 py-1 rounded-lg">Suspension</span>
+        </div>
+      </div>
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center">
+        <h3 class="text-white font-extrabold text-xl mb-2">Ready to experience the difference?</h3>
+        <p class="text-slate-400 text-sm mb-5">Join hundreds of satisfied Vancouver drivers. Book your appointment today.</p>
+        <button onclick="navigate('quote')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-full inline-flex items-center gap-2 transition-colors">
+          <i data-lucide="calendar-check" class="w-4 h-4"></i> Book Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ LOCATION PAGE -->
+<div id="page-location" class="page">
+  <div class="bg-slate-900 min-h-screen pt-24 pb-20 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <span class="inline-block bg-orange-500/20 text-orange-400 text-xs font-semibold px-4 py-1 rounded-full mb-4 tracking-widest uppercase">Find Us</span>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Our <span class="text-orange-500">Location</span></h1>
+        <p class="text-slate-400">Conveniently located on Cambie Street — easy access, free parking on site.</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <div class="flex flex-col gap-5">
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0"><i data-lucide="map-pin" class="text-orange-500 w-5 h-5"></i></div>
+            <div>
+              <p class="text-white font-bold mb-1">Address</p>
+              <p class="text-slate-400 text-sm leading-relaxed">8655 Cambie St., Unit 3<br/>Vancouver, BC V6P 3J9<br/>Canada</p>
+              <a href="https://maps.google.com/?q=8655+Cambie+St+Vancouver+BC" target="_blank" class="inline-flex items-center gap-1 text-orange-400 hover:text-orange-300 text-xs font-semibold mt-2 transition-colors">
+                Get Directions <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              </a>
+            </div>
+          </div>
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0"><i data-lucide="clock" class="text-orange-500 w-5 h-5"></i></div>
+            <div class="w-full">
+              <p class="text-white font-bold mb-3">Hours of Operation</p>
+              <div class="flex flex-col gap-1.5" id="hours-list"></div>
+            </div>
+          </div>
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0"><i data-lucide="phone" class="text-orange-500 w-5 h-5"></i></div>
+            <div>
+              <p class="text-white font-bold mb-1">Phone</p>
+              <a href="tel:+16044414006" class="text-orange-400 hover:text-orange-300 font-bold text-lg transition-colors">+1 604-441-4006</a>
+              <p class="text-slate-500 text-xs mt-1">Tap to call — available during business hours</p>
+            </div>
+          </div>
+          <a href="tel:+16044414006" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-colors shadow-lg text-base">
+            <i data-lucide="phone" class="w-5 h-5"></i> Call Now — One Tap
+          </a>
+        </div>
+        <div class="flex flex-col gap-5">
+          <div class="rounded-2xl overflow-hidden border border-slate-700 shadow-xl" style="height:380px">
+            <iframe title="Quick Fix Auto Location" width="100%" height="100%" style="border:0" loading="lazy"
+              src="https://www.google.com/maps?q=8655+Cambie+St+Unit+3+Vancouver+BC&output=embed"></iframe>
+          </div>
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+            <p class="text-white font-bold mb-3 text-sm">Getting Here</p>
+            <div class="flex flex-col gap-2 text-xs text-slate-400">
+              <div class="flex items-center gap-2"><span class="w-6 h-6 bg-blue-500 rounded text-white flex items-center justify-center">🚌</span>Nearest bus stop: Cambie &amp; W 71st Ave</div>
+              <div class="flex items-center gap-2"><span class="w-6 h-6 bg-green-600 rounded text-white flex items-center justify-center font-bold text-xs">P</span>Free on-site parking available</div>
+              <div class="flex items-center gap-2"><span class="w-6 h-6 bg-orange-500 rounded text-white flex items-center justify-center">🚗</span>Off Marine Drive, easy highway access</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ QUOTE PAGE -->
+<div id="page-quote" class="page">
+  <div class="bg-gradient-to-b from-slate-900 to-blue-950 min-h-screen pt-24 pb-20 px-4">
+    <div class="max-w-2xl mx-auto">
+      <div class="text-center mb-10">
+        <span class="inline-flex items-center gap-2 bg-blue-500/20 text-blue-400 text-xs font-bold px-4 py-1 rounded-full mb-4 tracking-widest uppercase"><i data-lucide="bot" class="w-3 h-3"></i> AI-Powered</span>
+        <h1 class="text-4xl font-extrabold text-white mb-3">Request a <span class="text-orange-500">Quote</span></h1>
+        <p class="text-slate-400">Fill in your details and our AI service advisor will respond instantly.</p>
+      </div>
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-7 shadow-2xl">
+        <!-- Form -->
+        <div id="quote-form">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <input id="q-name" type="text" placeholder="Your Full Name" class="bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full"/>
+            <input id="q-phone" type="tel" placeholder="Phone Number" class="bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full"/>
+          </div>
+          <input id="q-car" type="text" placeholder="Car Make & Model (e.g. Toyota Camry 2020)" class="bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full mb-4"/>
+          <select id="q-service" class="bg-slate-700 border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full mb-4">
+            <option value="" disabled selected>Select Service Needed</option>
+            <option>Advanced Diagnostics</option>
+            <option>Radiator / Cooling System</option>
+            <option>Brakes</option>
+            <option>Electrical / Battery</option>
+            <option>Oil Change &amp; Maintenance</option>
+            <option>Suspension &amp; Steering</option>
+            <option>General Repair</option>
+            <option>Not Sure — Need Advice</option>
+          </select>
+          <textarea id="q-notes" rows="3" placeholder="Any additional notes (optional)..." class="bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors w-full mb-4 resize-none"></textarea>
+          <button onclick="submitQuote()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg text-base">
+            <i data-lucide="send" class="w-4 h-4"></i> Get My Instant Quote
+          </button>
+          <p class="text-slate-500 text-xs text-center mt-3 flex items-center justify-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i>Please fill in all required fields</p>
+        </div>
+        <!-- Response -->
+        <div id="quote-response" class="hidden flex flex-col gap-4 min-h-48">
+          <div id="quote-messages" class="flex flex-col gap-4"></div>
+          <div id="quote-loading" class="hidden flex gap-3 items-start">
+            <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0"><i data-lucide="bot" class="w-4 h-4 text-white"></i></div>
+            <div class="bg-slate-700 rounded-2xl px-4 py-3 flex items-center gap-1 text-slate-400 text-sm">
+              <span class="w-2 h-2 bg-slate-400 rounded-full dot1 inline-block"></span>
+              <span class="w-2 h-2 bg-slate-400 rounded-full dot2 inline-block ml-1"></span>
+              <span class="w-2 h-2 bg-slate-400 rounded-full dot3 inline-block ml-1"></span>
+            </div>
+          </div>
+          <div id="quote-actions" class="hidden border-t border-slate-700 pt-4 flex flex-col sm:flex-row gap-3">
+            <a href="tel:+16044414006" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm">
+              <i data-lucide="phone" class="w-4 h-4"></i> Call to Confirm
+            </a>
+            <button onclick="resetQuote()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm">
+              New Quote Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ FOOTER -->
+<footer class="bg-slate-900 border-t border-slate-800 py-12 px-4">
+  <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+    <div>
+      <div class="flex items-center gap-2 mb-3"><i data-lucide="wrench" class="text-orange-500 w-4 h-4"></i><span class="text-white font-bold">Quick Fix Auto Limited</span></div>
+      <p class="text-slate-500 text-xs leading-relaxed">Professional auto repair, precision radiator service, and advanced vehicle diagnostics in Vancouver, BC.</p>
+    </div>
+    <div>
+      <p class="text-white font-bold text-sm mb-3">Quick Links</p>
+      <div class="flex flex-col gap-2">
+        <button onclick="navigate('home')" class="text-slate-400 hover:text-orange-400 text-xs text-left transition-colors">Home</button>
+        <button onclick="navigate('services')" class="text-slate-400 hover:text-orange-400 text-xs text-left transition-colors">Services</button>
+        <button onclick="navigate('reviews')" class="text-slate-400 hover:text-orange-400 text-xs text-left transition-colors">Reviews</button>
+        <button onclick="navigate('location')" class="text-slate-400 hover:text-orange-400 text-xs text-left transition-colors">Location</button>
+        <button onclick="navigate('quote')" class="text-slate-400 hover:text-orange-400 text-xs text-left transition-colors">Book Appointment</button>
+      </div>
+    </div>
+    <div>
+      <p class="text-white font-bold text-sm mb-3">Contact</p>
+      <div class="flex flex-col gap-2 text-xs text-slate-400">
+        <span class="flex items-center gap-2"><i data-lucide="map-pin" class="text-orange-500 w-3 h-3"></i>8655 Cambie St., Unit 3, Vancouver, BC</span>
+        <a href="tel:+16044414006" class="flex items-center gap-2 text-orange-400 hover:text-orange-300"><i data-lucide="phone" class="w-3 h-3"></i>+1 604-441-4006</a>
+        <span class="flex items-center gap-2"><i data-lucide="clock" class="text-orange-500 w-3 h-3"></i>9:00 AM – 8:00 PM · Every Day</span>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-slate-800 pt-6 text-center text-slate-600 text-xs">© 2026 Quick Fix Auto Limited. All rights reserved.</div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════ CHAT WIDGET -->
+<button onclick="toggleChat()" id="chat-btn" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-orange-500 hover:bg-orange-600 rounded-full shadow-2xl flex items-center justify-center transition-all">
+  <i data-lucide="message-circle" class="text-white w-6 h-6" id="chat-btn-icon"></i>
+  <span id="chat-dot" class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></span>
+</button>
+<div id="chat-window" class="fixed bottom-24 right-6 z-50 w-80 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl flex-col overflow-hidden hidden" style="height:420px">
+  <div class="bg-slate-900 px-4 py-3 flex items-center gap-3 border-b border-slate-700">
+    <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center"><i data-lucide="bot" class="w-4 h-4 text-white"></i></div>
+    <div><p class="text-white text-sm font-bold">Quick Fix Assistant</p><p class="text-green-400 text-xs">Online now</p></div>
+  </div>
+  <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3" style="max-height:300px">
+    <div class="flex gap-2">
+      <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1"><i data-lucide="bot" class="w-3 h-3 text-white"></i></div>
+      <div class="bg-slate-700 text-slate-200 rounded-2xl px-3 py-2 text-xs max-w-xs leading-relaxed">Hi! I'm the Quick Fix Auto assistant. Ask me anything about our services, pricing, or hours! 🔧</div>
+    </div>
+  </div>
+  <div id="chat-typing" class="hidden px-4 pb-1 flex gap-2 items-start">
+    <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="bot" class="w-3 h-3 text-white"></i></div>
+    <div class="bg-slate-700 rounded-2xl px-3 py-2 flex items-center gap-1">
+      <span class="w-1.5 h-1.5 bg-slate-400 rounded-full dot1 inline-block"></span>
+      <span class="w-1.5 h-1.5 bg-slate-400 rounded-full dot2 inline-block ml-1"></span>
+      <span class="w-1.5 h-1.5 bg-slate-400 rounded-full dot3 inline-block ml-1"></span>
+    </div>
+  </div>
+  <div class="p-3 border-t border-slate-700 flex gap-2">
+    <input id="chat-input" type="text" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendChat()"
+      class="flex-1 bg-slate-700 text-white text-xs rounded-xl px-3 py-2 outline-none placeholder-slate-400 border border-slate-600 focus:border-orange-500"/>
+    <button onclick="sendChat()" class="w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center justify-center transition-colors">
+      <i data-lucide="send" class="w-3 h-3 text-white"></i>
+    </button>
+  </div>
+</div>
+
+<script>
+// ── INIT LUCIDE ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  buildHours();
+});
+
+// ── ROUTER ───────────────────────────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    l.classList.toggle('active', l.dataset.page === page);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  lucide.createIcons();
+}
+
+// ── MOBILE MENU ──────────────────────────────────────────────────────────────
+function toggleMobileMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.toggle('hidden');
+  m.classList.toggle('flex');
+}
+function closeMobileMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+
+// ── HOURS ────────────────────────────────────────────────────────────────────
+function buildHours() {
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const list = document.getElementById('hours-list');
+  if (!list) return;
+  days.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'flex justify-between text-sm';
+    row.innerHTML = `<span class="text-slate-400">${d}</span><span class="text-green-400 font-semibold">9:00 AM – 8:00 PM</span>`;
+    list.appendChild(row);
+  });
+}
+
+// ── CHAT WIDGET ──────────────────────────────────────────────────────────────
+let chatHistory = [];
+function toggleChat() {
+  const win = document.getElementById('chat-window');
+  const dot = document.getElementById('chat-dot');
+  const icon = document.getElementById('chat-btn-icon');
+  const isOpen = !win.classList.contains('hidden');
+  win.classList.toggle('hidden', isOpen);
+  win.style.display = isOpen ? 'none' : 'flex';
+  dot.classList.toggle('hidden', !isOpen);
+  icon.setAttribute('data-lucide', isOpen ? 'message-circle' : 'x');
+  lucide.createIcons();
+}
+
+function appendChatMsg(role, text) {
+  const container = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'flex gap-2' + (role === 'user' ? ' justify-end' : '');
+  if (role === 'assistant') {
+    wrap.innerHTML = `<div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1"><i data-lucide="bot" class="w-3 h-3 text-white"></i></div><div class="bg-slate-700 text-slate-200 rounded-2xl px-3 py-2 text-xs max-w-xs leading-relaxed">${text}</div>`;
+  } else {
+    wrap.innerHTML = `<div class="bg-orange-500 text-white rounded-2xl px-3 py-2 text-xs max-w-xs leading-relaxed">${text}</div>`;
+  }
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+  lucide.createIcons();
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  appendChatMsg('user', txt);
+  chatHistory.push({ role: 'user', content: txt });
+  const typing = document.getElementById('chat-typing');
+  typing.classList.remove('hidden');
+  typing.style.display = 'flex';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a friendly, knowledgeable service advisor at Quick Fix Auto Limited in Vancouver, BC. Address: 8655 Cambie St., Unit 3, Vancouver, BC V6P 3J9. Phone: +1 604-441-4006. Hours: 9AM–8PM every day. Services: Advanced diagnostics (OBD-II scanning), radiator/cooling system repair, general auto repair (brakes, oil changes, tune-ups, suspension, electrical). Pricing guidance: Oil change ~$60–$90, brake pads ~$150–$250/axle, diagnostics ~$80–$120, radiator flush ~$100–$150. Always note final pricing needs in-person assessment. Be helpful, warm, concise (2–3 sentences max). Encourage booking or calling for specific quotes.`,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b => b.text || '').join('') || 'Please call us at +1 604-441-4006!';
+    chatHistory.push({ role: 'assistant', content: reply });
+    typing.classList.add('hidden');
+    typing.style.display = 'none';
+    appendChatMsg('assistant', reply);
+  } catch {
+    typing.classList.add('hidden');
+    typing.style.display = 'none';
+    appendChatMsg('assistant', 'Sorry, having trouble connecting. Please call +1 604-441-4006!');
+  }
+}
+
+// ── QUOTE FORM ───────────────────────────────────────────────────────────────
+async function submitQuote() {
+  const name = document.getElementById('q-name').value.trim();
+  const phone = document.getElementById('q-phone').value.trim();
+  const car = document.getElementById('q-car').value.trim();
+  const service = document.getElementById('q-service').value;
+  const notes = document.getElementById('q-notes').value.trim();
+  if (!name || !phone || !car || !service) return;
+
+  document.getElementById('quote-form').classList.add('hidden');
+  const resp = document.getElementById('quote-response');
+  resp.classList.remove('hidden');
+  resp.style.display = 'flex';
+  resp.style.flexDirection = 'column';
+
+  const loading = document.getElementById('quote-loading');
+  loading.classList.remove('hidden');
+  loading.style.display = 'flex';
+
+  const userText = `Quote request — Name: ${name}, Phone: ${phone}, Vehicle: ${car}, Service: ${service}${notes ? ', Notes: ' + notes : ''}`;
+  const msgDiv = document.getElementById('quote-messages');
+  // user bubble
+  const userWrap = document.createElement('div');
+  userWrap.className = 'flex gap-3 items-end flex-row-reverse';
+  userWrap.innerHTML = `<div class="bg-orange-500 text-white rounded-2xl px-4 py-3 text-sm max-w-sm leading-relaxed">${userText}</div>`;
+  msgDiv.appendChild(userWrap);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a friendly service advisor at Quick Fix Auto Limited, Vancouver, BC. Address: 8655 Cambie St., Unit 3. Phone: +1 604-441-4006. Hours: 9AM–8PM every day. Respond to quote requests warmly and professionally. Acknowledge their name and vehicle, give a helpful pricing estimate (note final price needs in-person assessment), mention same-day availability, and invite them to call or come in. Keep to 4–5 sentences. Sign off as "— The Quick Fix Auto Team 🔧"`,
+        messages: [{ role: 'user', content: userText }]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b => b.text || '').join('') || 'Thanks! Please call +1 604-441-4006 for your quote.';
+    loading.classList.add('hidden');
+    const aiWrap = document.createElement('div');
+    aiWrap.className = 'flex gap-3 items-start';
+    aiWrap.innerHTML = `<div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0"><i data-lucide="bot" class="w-4 h-4 text-white"></i></div><div class="bg-slate-700 text-slate-200 rounded-2xl px-4 py-3 text-sm max-w-sm leading-relaxed">${reply}</div>`;
+    msgDiv.appendChild(aiWrap);
+    document.getElementById('quote-actions').classList.remove('hidden');
+    document.getElementById('quote-actions').style.display = 'flex';
+    lucide.createIcons();
+  } catch {
+    loading.classList.add('hidden');
+    const aiWrap = document.createElement('div');
+    aiWrap.innerHTML = `<div class="bg-slate-700 text-slate-200 rounded-2xl px-4 py-3 text-sm">Thanks for reaching out! Please call us at <a href="tel:+16044414006" class="text-orange-400">+1 604-441-4006</a> for your quote.</div>`;
+    msgDiv.appendChild(aiWrap);
+  }
+}
+
+function resetQuote() {
+  document.getElementById('q-name').value = '';
+  document.getElementById('q-phone').value = '';
+  document.getElementById('q-car').value = '';
+  document.getElementById('q-service').value = '';
+  document.getElementById('q-notes').value = '';
+  document.getElementById('quote-messages').innerHTML = '';
+  document.getElementById('quote-response').classList.add('hidden');
+  document.getElementById('quote-actions').classList.add('hidden');
+  document.getElementById('quote-form').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
