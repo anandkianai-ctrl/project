@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fraserview Collision Repair | Vancouver Auto Body Shop</title>
+<meta name="description" content="Vancouver's trusted collision repair shop. Expert body, paint & frame work on all makes and models. ICBC accepted. Free estimates. Est. 1994."/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{--red:#c0392b;--dark:#0d0d0d;--darker:#080808;--card:#161616;--border:#222;--text:#e0e0e0;--muted:#888;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--dark);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;overflow-x:hidden;}
+
+  nav{position:fixed;top:0;width:100%;z-index:1000;background:rgba(8,8,8,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 2rem;}
+  .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .logo{font-size:1.2rem;font-weight:800;color:#fff;letter-spacing:.5px;}
+  .logo span{color:var(--red);}
+  .nav-links{display:flex;gap:2rem;list-style:none;}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s;cursor:pointer;}
+  .nav-links a:hover,.nav-links a.active{color:#fff;}
+  .nav-cta{background:var(--red);color:#fff;border:none;padding:.55rem 1.3rem;border-radius:4px;font-weight:600;font-size:.85rem;cursor:pointer;transition:background .2s;}
+  .nav-cta:hover{background:#a93226;}
+
+  .page{display:none;min-height:100vh;padding-top:64px;}
+  .page.active{display:block;}
+
+  .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 60% 50%,#1a0a0a 0%,var(--darker) 70%);}
+  .hero-content{text-align:center;z-index:2;position:relative;padding:2rem;}
+  .hero-badge{display:inline-block;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.4);color:var(--red);padding:.4rem 1rem;border-radius:20px;font-size:.8rem;font-weight:600;letter-spacing:1px;margin-bottom:1.5rem;text-transform:uppercase;}
+  .hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.1;color:#fff;margin-bottom:1rem;}
+  .hero h1 span{color:var(--red);}
+  .hero p{font-size:1.1rem;color:var(--muted);max-width:560px;margin:0 auto 2.5rem;}
+  .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+  .btn-primary{background:var(--red);color:#fff;padding:.8rem 2rem;border-radius:5px;font-weight:700;font-size:.95rem;cursor:pointer;border:none;transition:all .2s;}
+  .btn-primary:hover{background:#a93226;transform:translateY(-1px);}
+  .btn-outline{background:transparent;color:#fff;padding:.8rem 2rem;border-radius:5px;font-weight:600;font-size:.95rem;cursor:pointer;border:1px solid #444;transition:all .2s;}
+  .btn-outline:hover{border-color:#fff;}
+  .car-scene{width:min(600px,90vw);margin:3rem auto 0;}
+  .car-scene svg{width:100%;filter:drop-shadow(0 20px 60px rgba(192,57,43,.3));}
+
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.visible{opacity:1;transform:none;}
+  .reveal-left{opacity:0;transform:translateX(-50px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal-left.visible{opacity:1;transform:none;}
+  .reveal-right{opacity:0;transform:translateX(50px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal-right.visible{opacity:1;transform:none;}
+
+  .section{padding:6rem 2rem;max-width:1200px;margin:0 auto;}
+  .section-label{font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:.75rem;}
+  .section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:#fff;margin-bottom:1rem;}
+  .divider{width:50px;height:3px;background:var(--red);margin:1rem 0 2rem;}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:3rem;}
+  @media(max-width:768px){.about-grid,.location-grid{grid-template-columns:1fr;}}
+
+  .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:3rem;}
+  .service-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:transform .3s,border-color .3s;}
+  .service-card:hover{transform:translateY(-6px);border-color:var(--red);}
+  .service-car-wrap{padding:2rem 2rem 0;display:flex;justify-content:center;}
+  .service-car-wrap svg{width:180px;filter:drop-shadow(0 8px 20px rgba(192,57,43,.2));}
+  .service-info{padding:1.5rem 2rem 2rem;}
+  .service-info h3{font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:.5rem;}
+  .service-info p{color:var(--muted);font-size:.9rem;line-height:1.7;}
+  .service-tag{display:inline-block;margin-top:.75rem;background:rgba(192,57,43,.12);color:var(--red);border:1px solid rgba(192,57,43,.3);padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;}
+
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:3rem;}
+  .review-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .3s;}
+  .review-card:hover{border-color:rgba(192,57,43,.5);}
+  .stars{color:#f0c040;font-size:1rem;margin-bottom:.75rem;letter-spacing:2px;}
+  .review-text{color:#ccc;font-size:.92rem;line-height:1.75;font-style:italic;margin-bottom:1rem;}
+  .reviewer{display:flex;align-items:center;gap:.75rem;}
+  .avatar{width:40px;height:40px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.9rem;flex-shrink:0;}
+  .reviewer-name{font-weight:700;color:#fff;font-size:.9rem;}
+  .reviewer-source{font-size:.75rem;color:var(--muted);}
+  .rating-summary{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2rem;display:flex;align-items:center;gap:3rem;flex-wrap:wrap;}
+  .big-score{font-size:4rem;font-weight:900;color:#fff;line-height:1;}
+
+  .location-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:3rem;align-items:start;}
+  .info-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:1.5rem;}
+  .info-block h4{font-size:.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:1rem;}
+  .info-row{display:flex;gap:1rem;align-items:flex-start;margin-bottom:.75rem;}
+  .info-text{color:var(--text);font-size:.95rem;line-height:1.5;}
+  .hours-table{width:100%;}
+  .hours-table tr{border-bottom:1px solid var(--border);}
+  .hours-table td{padding:.6rem 0;font-size:.9rem;color:var(--text);}
+  .hours-table td:last-child{text-align:right;color:var(--muted);}
+
+  .contact-section{padding:6rem 2rem;background:var(--dark);}
+  .contact-inner{max-width:700px;margin:0 auto;}
+  .form-group{margin-bottom:1.25rem;}
+  .form-group label{display:block;font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:.4rem;}
+  .form-group input,.form-group textarea,.form-group select{width:100%;background:#111;border:1px solid var(--border);border-radius:6px;padding:.8rem 1rem;color:var(--text);font-size:.95rem;transition:border-color .2s;outline:none;}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--red);}
+  .form-group textarea{resize:vertical;min-height:120px;}
+  .form-group select option{background:#111;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+  .submit-btn{width:100%;background:var(--red);color:#fff;border:none;padding:1rem;border-radius:6px;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;margin-top:.5rem;}
+  .submit-btn:hover{background:#a93226;}
+  .submit-btn:disabled{opacity:.6;cursor:not-allowed;}
+  .success-msg{display:none;background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);color:#2ecc71;padding:1rem;border-radius:8px;text-align:center;margin-top:1rem;}
+  .error-msg{display:none;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#e74c3c;padding:1rem;border-radius:8px;text-align:center;margin-top:1rem;}
+
+  .chat-widget{position:fixed;bottom:2rem;right:2rem;z-index:999;}
+  .chat-btn{width:60px;height:60px;border-radius:50%;background:var(--red);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(192,57,43,.5);transition:transform .2s;}
+  .chat-btn:hover{transform:scale(1.1);}
+  .chat-btn svg{width:28px;height:28px;fill:#fff;}
+  .chat-panel{display:none;position:absolute;bottom:75px;right:0;width:360px;background:#111;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7);flex-direction:column;}
+  .chat-panel.open{display:flex;}
+  .chat-header{background:var(--red);padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;}
+  .chat-header-info{display:flex;align-items:center;gap:.75rem;}
+  .chat-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .chat-title-txt{font-weight:700;color:#fff;font-size:.95rem;}
+  .chat-subtitle{font-size:.72rem;color:rgba(255,255,255,.7);}
+  .chat-close{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;opacity:.8;}
+  .chat-close:hover{opacity:1;}
+  .chat-messages{height:320px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem;}
+  .chat-messages::-webkit-scrollbar{width:4px;}
+  .chat-messages::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+  .msg{max-width:82%;padding:.7rem 1rem;border-radius:12px;font-size:.88rem;line-height:1.5;}
+  .msg.bot{background:#1e1e1e;color:var(--text);border-bottom-left-radius:3px;align-self:flex-start;}
+  .msg.user{background:var(--red);color:#fff;border-bottom-right-radius:3px;align-self:flex-end;}
+  .msg.typing{background:#1e1e1e;align-self:flex-start;}
+  .typing-dots{display:flex;gap:4px;align-items:center;height:20px;}
+  .typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce .9s infinite;}
+  .typing-dots span:nth-child(2){animation-delay:.2s;}
+  .typing-dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+  .chat-input-row{display:flex;gap:.5rem;padding:.75rem 1rem;border-top:1px solid var(--border);}
+  .chat-input{flex:1;background:#1a1a1a;border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;color:var(--text);font-size:.88rem;outline:none;}
+  .chat-input:focus{border-color:var(--red);}
+  .chat-send{background:var(--red);border:none;border-radius:8px;padding:.6rem .9rem;cursor:pointer;color:#fff;font-size:1rem;}
+  .chat-send:hover{background:#a93226;}
+
+  footer{background:var(--darker);border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;}
+  .footer-logo{font-size:1.3rem;font-weight:900;color:#fff;margin-bottom:.5rem;}
+  .footer-logo span{color:var(--red);}
+  .footer-links{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0;}
+  .footer-links a{color:var(--muted);text-decoration:none;font-size:.85rem;cursor:pointer;transition:color .2s;}
+  .footer-links a:hover{color:#fff;}
+
+  @media(max-width:600px){.nav-links{display:none;}.chat-panel{width:calc(100vw - 2rem);right:-1rem;}}
+</style>
+</head>
+<body>
+
+<!-- ======== NAV ======== -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Fraserview <span>Collision</span></div>
+    <ul class="nav-links">
+      <li><a onclick="showPage('home')" class="active" id="nav-home">Home</a></li>
+      <li><a onclick="showPage('services')" id="nav-services">Services</a></li>
+      <li><a onclick="showPage('reviews')" id="nav-reviews">Reviews</a></li>
+      <li><a onclick="showPage('location')" id="nav-location">Location</a></li>
+    </ul>
+    <button class="nav-cta" onclick="goContact()">Get a Quote</button>
+  </div>
+</nav>
+
+<!-- ======== HOME ======== -->
+<div class="page active" id="home-page">
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge reveal">Est. 1994 · Trusted by Vancouver Drivers</div>
+      <h1 class="reveal">Vancouver's <span>Trusted</span><br>Collision Repair Shop</h1>
+      <p class="reveal">Expert body, paint &amp; frame work on every make and model — from your daily commuter to your family SUV. Quality repairs, honest service, every time.</p>
+      <div class="hero-btns reveal">
+        <button class="btn-primary" onclick="goContact()">Book a Free Estimate</button>
+        <button class="btn-outline" onclick="showPage('services')">Our Services</button>
+      </div>
+      <div class="car-scene reveal">
+        <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="glow" cx="50%" cy="80%" r="50%"><stop offset="0%" stop-color="#c0392b" stop-opacity=".35"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+            <linearGradient id="bodyG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#2c2c2c"/><stop offset="40%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#0d0d0d"/></linearGradient>
+            <linearGradient id="topG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#252525"/><stop offset="100%" stop-color="#111"/></linearGradient>
+            <linearGradient id="glassG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4a6fa5" stop-opacity=".6"/><stop offset="100%" stop-color="#1a2a4a" stop-opacity=".8"/></linearGradient>
+          </defs>
+          <ellipse cx="300" cy="260" rx="260" ry="20" fill="url(#glow)"/>
+          <path d="M80,200 Q80,170 110,165 L160,130 Q200,100 300,95 Q390,90 430,115 L480,140 Q510,155 515,175 Q520,190 515,200 Z" fill="url(#bodyG)"/>
+          <path d="M175,130 Q220,88 300,83 Q375,78 415,110 L175,130 Z" fill="url(#topG)"/>
+          <path d="M200,127 Q240,90 300,85 Q355,82 390,108 L200,127 Z" fill="url(#glassG)" opacity=".9"/>
+          <path d="M215,125 Q245,100 290,97 Q335,95 365,112 L340,125 Q305,128 270,128 Z" fill="url(#glassG)" opacity=".7"/>
+          <line x1="260" y1="125" x2="255" y2="200" stroke="#333" stroke-width="1.5"/>
+          <line x1="340" y1="123" x2="348" y2="200" stroke="#333" stroke-width="1.5"/>
+          <rect x="90" y="196" width="420" height="14" rx="4" fill="#111"/>
+          <path d="M480,140 Q520,148 522,175 Q524,195 515,200 L490,200 Q500,185 498,165 Z" fill="#1a1a1a"/>
+          <path d="M80,200 L90,200 Q85,183 87,165 Q85,148 110,140 L110,165 Q90,170 80,200 Z" fill="#1a1a1a"/>
+          <path d="M488,148 L512,158 L510,172 L486,166 Z" fill="#ffe8a0" opacity=".9"/>
+          <line x1="486" y1="150" x2="510" y2="160" stroke="#fff" stroke-width="2" opacity=".5"/>
+          <path d="M92,148 L84,158 L86,172 L94,166 Z" fill="#c0392b" opacity=".9"/>
+          <line x1="94" y1="150" x2="86" y2="162" stroke="#ff6666" stroke-width="1.5" opacity=".6"/>
+          <line x1="100" y1="180" x2="510" y2="180" stroke="#c0392b" stroke-width="2" opacity=".6"/>
+          <circle cx="420" cy="205" r="42" fill="#0a0a0a"/><circle cx="420" cy="205" r="38" fill="#111" stroke="#2a2a2a" stroke-width="1"/><circle cx="420" cy="205" r="26" fill="#1c1c1c" stroke="#444" stroke-width="1"/><circle cx="420" cy="205" r="8" fill="#555"/>
+          <line x1="420" y1="179" x2="420" y2="231" stroke="#555" stroke-width="3"/><line x1="394" y1="205" x2="446" y2="205" stroke="#555" stroke-width="3"/>
+          <line x1="401" y1="186" x2="439" y2="224" stroke="#555" stroke-width="2.5"/><line x1="401" y1="224" x2="439" y2="186" stroke="#555" stroke-width="2.5"/>
+          <circle cx="175" cy="205" r="42" fill="#0a0a0a"/><circle cx="175" cy="205" r="38" fill="#111" stroke="#2a2a2a" stroke-width="1"/><circle cx="175" cy="205" r="26" fill="#1c1c1c" stroke="#444" stroke-width="1"/><circle cx="175" cy="205" r="8" fill="#555"/>
+          <line x1="175" y1="179" x2="175" y2="231" stroke="#555" stroke-width="3"/><line x1="149" y1="205" x2="201" y2="205" stroke="#555" stroke-width="3"/>
+          <line x1="156" y1="186" x2="194" y2="224" stroke="#555" stroke-width="2.5"/><line x1="156" y1="224" x2="194" y2="186" stroke="#555" stroke-width="2.5"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <div class="section">
+    <div class="about-grid">
+      <div class="reveal-left">
+        <div class="section-label">About Us</div>
+        <h2 class="section-title">30 Years Serving <span style="color:var(--red)">Vancouver</span></h2>
+        <div class="divider"></div>
+        <p style="color:var(--muted);line-height:1.8;margin-bottom:1rem;">Founded in 1994 by brothers Rick and Ali Habib, Fraserview Collision was built on one principle: every vehicle deserves the best possible repair, regardless of make or model. We treat your car — whether it's your family sedan, work van, or weekend SUV — like it's the most important vehicle in the shop.</p>
+        <p style="color:var(--muted);line-height:1.8;">With over 30 years of experience, our team delivers quality collision repair with honest communication and zero hidden fees. When you choose Fraserview, you're choosing a team that genuinely cares about getting you back on the road.</p>
+        <div class="stat-row" style="display:flex;gap:2rem;flex-wrap:wrap;margin-top:2rem;">
+          <div><div style="font-size:2.2rem;font-weight:900;color:var(--red);">30+</div><div style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Years in Business</div></div>
+          <div><div style="font-size:2.2rem;font-weight:900;color:var(--red);">All</div><div style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Makes &amp; Models</div></div>
+          <div><div style="font-size:2.2rem;font-weight:900;color:var(--red);">ICBC</div><div style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Accepted</div></div>
+        </div>
+      </div>
+      <div class="reveal-right">
+        <svg viewBox="0 0 440 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;filter:drop-shadow(0 10px 40px rgba(192,57,43,.2))">
+          <defs>
+            <linearGradient id="floorG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#0d0d0d"/></linearGradient>
+            <linearGradient id="carG2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#111"/></linearGradient>
+            <radialGradient id="lamp" cx="50%" cy="0%" r="80%"><stop offset="0%" stop-color="#ffe8a0" stop-opacity=".3"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+          </defs>
+          <rect width="440" height="320" fill="url(#floorG)" rx="12"/>
+          <line x1="0" y1="270" x2="440" y2="270" stroke="#222" stroke-width="1.5"/>
+          <rect x="160" y="0" width="120" height="8" rx="4" fill="#333"/>
+          <rect x="180" y="8" width="80" height="4" rx="2" fill="#444"/>
+          <ellipse cx="220" cy="60" rx="180" ry="60" fill="url(#lamp)"/>
+          <rect x="80" y="240" width="12" height="30" fill="#333" rx="2"/><rect x="348" y="240" width="12" height="30" fill="#333" rx="2"/>
+          <rect x="70" y="235" width="30" height="8" rx="3" fill="#3a3a3a"/><rect x="338" y="235" width="30" height="8" rx="3" fill="#3a3a3a"/>
+          <path d="M60,195 Q62,170 90,162 L140,128 Q190,95 220,92 Q260,88 295,100 L350,130 Q375,148 378,168 Q382,185 375,195 Z" fill="url(#carG2)"/>
+          <path d="M148,130 Q195,90 220,87 Q256,84 288,103 L148,130 Z" fill="#1e1e1e"/>
+          <path d="M165,128 Q200,96 220,93 Q254,90 280,106 L260,122 Q230,126 200,126 Z" fill="#264573" opacity=".7"/>
+          <line x1="200" y1="122" x2="196" y2="195" stroke="#222" stroke-width="1.5"/>
+          <line x1="260" y1="120" x2="268" y2="195" stroke="#222" stroke-width="1.5"/>
+          <rect x="65" y="191" width="310" height="12" rx="3" fill="#0e0e0e"/>
+          <line x1="70" y1="174" x2="375" y2="174" stroke="#c0392b" stroke-width="1.5" opacity=".5"/>
+          <circle cx="320" cy="217" r="33" fill="#080808"/><circle cx="320" cy="217" r="29" fill="#111" stroke="#222" stroke-width="1"/><circle cx="320" cy="217" r="19" fill="#1e1e1e" stroke="#333" stroke-width="1"/><circle cx="320" cy="217" r="6" fill="#444"/>
+          <line x1="320" y1="198" x2="320" y2="236" stroke="#444" stroke-width="2"/><line x1="301" y1="217" x2="339" y2="217" stroke="#444" stroke-width="2"/>
+          <circle cx="118" cy="217" r="33" fill="#080808"/><circle cx="118" cy="217" r="29" fill="#111" stroke="#222" stroke-width="1"/><circle cx="118" cy="217" r="19" fill="#1e1e1e" stroke="#333" stroke-width="1"/><circle cx="118" cy="217" r="6" fill="#444"/>
+          <line x1="118" y1="198" x2="118" y2="236" stroke="#444" stroke-width="2"/><line x1="99" y1="217" x2="137" y2="217" stroke="#444" stroke-width="2"/>
+          <circle cx="395" cy="145" r="15" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+          <rect x="385" y="160" width="20" height="35" rx="4" fill="#1e3a5f"/>
+          <line x1="385" y1="170" x2="365" y2="185" stroke="#1e3a5f" stroke-width="8" stroke-linecap="round"/>
+          <line x1="405" y1="170" x2="418" y2="175" stroke="#1e3a5f" stroke-width="8" stroke-linecap="round"/>
+          <line x1="388" y1="195" x2="386" y2="230" stroke="#333" stroke-width="6" stroke-linecap="round"/>
+          <line x1="402" y1="195" x2="404" y2="230" stroke="#333" stroke-width="6" stroke-linecap="round"/>
+          <line x1="418" y1="175" x2="430" y2="160" stroke="#888" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="430" cy="158" r="5" fill="#aaa"/>
+          <circle cx="370" cy="180" r="2" fill="#ffd700" opacity=".8"/><circle cx="362" cy="175" r="1.5" fill="#ffd700" opacity=".6"/><circle cx="375" cy="172" r="1" fill="#ffd700" opacity=".7"/>
+          <rect x="18" y="255" width="48" height="28" rx="4" fill="#c0392b"/>
+          <rect x="18" y="252" width="48" height="8" rx="3" fill="#a93226"/>
+          <line x1="18" y1="264" x2="66" y2="264" stroke="#a93226" stroke-width="1.5"/>
+          <rect x="36" y="248" width="12" height="6" rx="3" fill="#222"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY US -->
+  <div style="background:var(--darker);padding:5rem 2rem;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+        <div class="section-label">Why Choose Us</div>
+        <h2 class="section-title">Trusted by Vancouver for Decades</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;">
+        <div class="reveal" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .3s;" onmouseover="this.style.borderColor='#c0392b'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:2rem;margin-bottom:.75rem;">🚗</div>
+          <h3 style="color:#fff;margin-bottom:.5rem;">Courtesy Cars</h3>
+          <p style="color:var(--muted);font-size:.9rem;line-height:1.6;">Loaner vehicles provided from day one while yours is in for repair.</p>
+        </div>
+        <div class="reveal" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .3s;" onmouseover="this.style.borderColor='#c0392b'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:2rem;margin-bottom:.75rem;">📋</div>
+          <h3 style="color:#fff;margin-bottom:.5rem;">Free Estimates</h3>
+          <p style="color:var(--muted);font-size:.9rem;line-height:1.6;">Transparent, no-obligation quotes. No hidden fees, ever.</p>
+        </div>
+        <div class="reveal" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .3s;" onmouseover="this.style.borderColor='#c0392b'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:2rem;margin-bottom:.75rem;">🔧</div>
+          <h3 style="color:#fff;margin-bottom:.5rem;">All Makes &amp; Models</h3>
+          <p style="color:var(--muted);font-size:.9rem;line-height:1.6;">Domestic, import, SUVs, minivans, trucks — we repair them all.</p>
+        </div>
+        <div class="reveal" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .3s;" onmouseover="this.style.borderColor='#c0392b'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:2rem;margin-bottom:.75rem;">🔒</div>
+          <h3 style="color:#fff;margin-bottom:.5rem;">ICBC Accepted</h3>
+          <p style="color:var(--muted);font-size:.9rem;line-height:1.6;">We handle ICBC claims directly — stress-free from start to finish.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /home -->
+
+<!-- ======== SERVICES ======== -->
+<div class="page" id="services-page">
+  <div class="section">
+    <div class="reveal" style="text-align:center;margin-bottom:1rem;">
+      <div class="section-label">What We Do</div>
+      <h2 class="section-title">Our Services</h2>
+      <div class="divider" style="margin:1rem auto 0;"></div>
+      <p style="color:var(--muted);max-width:580px;margin:.75rem auto 0;line-height:1.7;">From minor fender benders to major collision damage — expert repairs on every make and model, finished to the highest standard.</p>
+    </div>
+    <div class="services-grid">
+
+      <div class="service-card reveal">
+        <div class="service-car-wrap">
+          <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="sc1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#111"/></linearGradient></defs>
+            <ellipse cx="100" cy="108" rx="90" ry="8" fill="#c0392b" opacity=".15"/>
+            <path d="M18,80 Q18,65 32,62 L55,45 Q75,30 100,28 Q128,26 148,40 L168,55 Q180,62 182,72 Q184,80 180,82 Z" fill="url(#sc1)"/>
+            <path d="M58,46 Q80,28 100,26 Q124,24 142,38 L58,46 Z" fill="#1a1a1a"/>
+            <path d="M65,44 Q85,28 100,26 Q120,24 136,36 L118,44 Q100,46 80,46 Z" fill="#264573" opacity=".7"/>
+            <rect x="22" y="78" width="158" height="7" rx="3" fill="#0e0e0e"/>
+            <circle cx="185" cy="68" r="3" fill="#c0392b" opacity=".6"/><circle cx="190" cy="62" r="2" fill="#c0392b" opacity=".4"/><circle cx="182" cy="60" r="1.5" fill="#ffd700" opacity=".5"/>
+            <circle cx="155" cy="90" r="22" fill="#080808"/><circle cx="155" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="155" cy="90" r="11" fill="#1e1e1e"/><circle cx="155" cy="90" r="3" fill="#444"/>
+            <circle cx="44" cy="90" r="22" fill="#080808"/><circle cx="44" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="44" cy="90" r="11" fill="#1e1e1e"/><circle cx="44" cy="90" r="3" fill="#444"/>
+          </svg>
+        </div>
+        <div class="service-info"><h3>Auto Body Repair</h3><p>Full collision damage restoration — dents, creases, panel replacement, and structural repairs to factory spec on all makes and models.</p><span class="service-tag">All Makes &amp; Models</span></div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-car-wrap">
+          <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="sc2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#0d1a2e"/></linearGradient></defs>
+            <ellipse cx="100" cy="108" rx="90" ry="8" fill="#c0392b" opacity=".15"/>
+            <path d="M18,80 Q18,65 32,62 L55,45 Q75,30 100,28 Q128,26 148,40 L168,55 Q180,62 182,72 Q184,80 180,82 Z" fill="url(#sc2)"/>
+            <path d="M58,46 Q80,28 100,26 Q124,24 142,38 L58,46 Z" fill="#152840"/>
+            <path d="M65,44 Q85,28 100,26 Q120,24 136,36 L118,44 Q100,46 80,46 Z" fill="#264573" opacity=".7"/>
+            <rect x="22" y="78" width="158" height="7" rx="3" fill="#0a0a0a"/>
+            <rect x="178" y="50" width="18" height="6" rx="3" fill="#888"/><circle cx="196" cy="53" r="4" fill="#aaa"/>
+            <circle cx="170" cy="60" r="5" fill="#1e3a5f" opacity=".5"/><circle cx="165" cy="55" r="3" fill="#2563a4" opacity=".4"/>
+            <circle cx="155" cy="90" r="22" fill="#080808"/><circle cx="155" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="155" cy="90" r="11" fill="#1e1e1e"/><circle cx="155" cy="90" r="3" fill="#444"/>
+            <circle cx="44" cy="90" r="22" fill="#080808"/><circle cx="44" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="44" cy="90" r="11" fill="#1e1e1e"/><circle cx="44" cy="90" r="3" fill="#444"/>
+          </svg>
+        </div>
+        <div class="service-info"><h3>Paint &amp; Refinishing</h3><p>OEM-matched paint work using premium materials — colour correction, full resprays, and flawless blending to restore your vehicle's original finish.</p><span class="service-tag">Perfect Colour Match</span></div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-car-wrap">
+          <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="sc3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#2a1a1a"/><stop offset="100%" stop-color="#140a0a"/></linearGradient></defs>
+            <ellipse cx="100" cy="108" rx="90" ry="8" fill="#c0392b" opacity=".15"/>
+            <path d="M18,80 Q18,65 32,62 L55,45 Q75,30 100,28 Q128,26 148,40 L168,55 Q180,62 182,72 Q184,80 180,82 Z" fill="url(#sc3)" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <path d="M58,46 Q80,28 100,26 Q124,24 142,38 L58,46 Z" fill="#1a0d0d"/>
+            <path d="M65,44 Q85,28 100,26 Q120,24 136,36 L118,44 Q100,46 80,46 Z" fill="#264573" opacity=".5"/>
+            <rect x="22" y="78" width="158" height="7" rx="3" fill="#0e0e0e"/>
+            <line x1="28" y1="78" x2="172" y2="78" stroke="#c0392b" stroke-width="1" stroke-dasharray="3,3"/>
+            <line x1="100" y1="28" x2="100" y2="78" stroke="#c0392b" stroke-width="1" stroke-dasharray="2,3" opacity=".5"/>
+            <circle cx="100" cy="28" r="3" fill="#c0392b" opacity=".7"/><circle cx="28" cy="78" r="3" fill="#c0392b" opacity=".7"/><circle cx="172" cy="78" r="3" fill="#c0392b" opacity=".7"/>
+            <circle cx="155" cy="90" r="22" fill="#080808"/><circle cx="155" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="155" cy="90" r="11" fill="#1e1e1e"/><circle cx="155" cy="90" r="3" fill="#444"/>
+            <circle cx="44" cy="90" r="22" fill="#080808"/><circle cx="44" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="44" cy="90" r="11" fill="#1e1e1e"/><circle cx="44" cy="90" r="3" fill="#444"/>
+          </svg>
+        </div>
+        <div class="service-info"><h3>Frame Straightening</h3><p>Computerized frame alignment to restore factory geometry after serious collisions — critical for safety, handling, and long-term reliability.</p><span class="service-tag">Computerized Precision</span></div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-car-wrap">
+          <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="sc4" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#222"/><stop offset="100%" stop-color="#0d0d0d"/></linearGradient></defs>
+            <ellipse cx="100" cy="110" rx="90" ry="8" fill="#c0392b" opacity=".15"/>
+            <path d="M14,82 Q14,64 28,60 L50,38 Q72,22 100,20 Q130,18 152,34 L172,52 Q186,60 188,74 Q190,84 184,86 Z" fill="url(#sc4)"/>
+            <path d="M52,38 Q74,20 100,18 Q128,16 148,32 L52,38 Z" fill="#151515"/>
+            <path d="M58,36 Q78,20 100,18 Q122,16 140,30 L120,38 Q100,40 78,40 Z" fill="#264573" opacity=".75"/>
+            <rect x="18" y="80" width="166" height="9" rx="3" fill="#0a0a0a"/>
+            <line x1="92" y1="37" x2="90" y2="82" stroke="#2a2a2a" stroke-width="1.5"/><line x1="130" y1="35" x2="134" y2="82" stroke="#2a2a2a" stroke-width="1.5"/>
+            <path d="M177,54 L188,62 L186,74 L175,68 Z" fill="#ffe8a0" opacity=".9"/>
+            <path d="M21,54 L14,62 L16,74 L23,68 Z" fill="#c0392b" opacity=".8"/>
+            <circle cx="152" cy="95" r="22" fill="#080808"/><circle cx="152" cy="95" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="152" cy="95" r="11" fill="#1e1e1e"/><circle cx="152" cy="95" r="3" fill="#444"/>
+            <circle cx="46" cy="95" r="22" fill="#080808"/><circle cx="46" cy="95" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="46" cy="95" r="11" fill="#1e1e1e"/><circle cx="46" cy="95" r="3" fill="#444"/>
+          </svg>
+        </div>
+        <div class="service-info"><h3>SUVs, Vans &amp; Trucks</h3><p>Full repair services for family SUVs, minivans, pickup trucks, and commercial work vehicles — every job treated with the same care and quality.</p><span class="service-tag">Family &amp; Commercial</span></div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-car-wrap">
+          <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="sc5" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1a2a1a"/><stop offset="100%" stop-color="#0d140d"/></linearGradient></defs>
+            <ellipse cx="100" cy="108" rx="90" ry="8" fill="#27ae60" opacity=".1"/>
+            <path d="M18,80 Q18,65 32,62 L55,45 Q75,30 100,28 Q128,26 148,40 L168,55 Q180,62 182,72 Q184,80 180,82 Z" fill="url(#sc5)"/>
+            <path d="M58,46 Q80,28 100,26 Q124,24 142,38 L58,46 Z" fill="#111e11"/>
+            <path d="M65,44 Q85,28 100,26 Q120,24 136,36 L118,44 Q100,46 80,46 Z" fill="#264573" opacity=".7"/>
+            <rect x="22" y="78" width="158" height="7" rx="3" fill="#0e0e0e"/>
+            <line x1="75" y1="36" x2="68" y2="46" stroke="#27ae60" stroke-width="1" opacity=".7"/><line x1="75" y1="36" x2="82" y2="44" stroke="#27ae60" stroke-width="1" opacity=".5"/>
+            <text x="80" y="50" font-size="8" fill="#27ae60" opacity=".8" text-anchor="middle">REPAIRED</text>
+            <circle cx="155" cy="90" r="22" fill="#080808"/><circle cx="155" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="155" cy="90" r="11" fill="#1e1e1e"/><circle cx="155" cy="90" r="3" fill="#27ae60" opacity=".8"/>
+            <circle cx="44" cy="90" r="22" fill="#080808"/><circle cx="44" cy="90" r="18" fill="#111" stroke="#222" stroke-width="1"/><circle cx="44" cy="90" r="11" fill="#1e1e1e"/><circle cx="44" cy="90" r="3" fill="#27ae60" opacity=".8"/>
+          </svg>
+        </div>
+        <div class="service-info"><h3>Windshield Repair</h3><p>Chip and crack repairs to full windshield replacement — properly sealed and safety-tested to ensure your visibility and protection on the road.</p><span class="service-tag">Safety Certified</span></div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-car-wrap">
+          <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="sc6" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#2a2a1a"/><stop offset="100%" stop-color="#141409"/></linearGradient></defs>
+            <ellipse cx="100" cy="108" rx="90" ry="8" fill="#f39c12" opacity=".1"/>
+            <path d="M18,80 Q18,65 32,62 L55,45 Q75,30 100,28 Q128,26 148,40 L168,55 Q180,62 182,72 Q184,80 180,82 Z" fill="url(#sc6)"/>
+            <path d="M58,46 Q80,28 100,26 Q124,24 142,38 L58,46 Z" fill="#1a1a10"/>
+            <path d="M65,44 Q85,28 100,26 Q120,24 136,36 L118,44 Q100,46 80,46 Z" fill="#264573" opacity=".7"/>
+            <rect x="22" y="78" width="158" height="7" rx="3" fill="#0e0e0e"/>
+            <circle cx="80" cy="60" r="1.5" fill="#fff" opacity=".8"/><circle cx="120" cy="50" r="1" fill="#fff" opacity=".6"/><circle cx="150" cy="62" r="1.5" fill="#fff" opacity=".7"/><circle cx="60" cy="68" r="1" fill="#fff" opacity=".5"/>
+            <circle cx="155" cy="90" r="22" fill="#080808"/><circle cx="155" cy="90" r="18" fill="#111" stroke="#f39c12" stroke-width="1" stroke-opacity=".3"/><circle cx="155" cy="90" r="11" fill="#1e1e1e"/><circle cx="155" cy="90" r="3" fill="#444"/>
+            <circle cx="44" cy="90" r="22" fill="#080808"/><circle cx="44" cy="90" r="18" fill="#111" stroke="#f39c12" stroke-width="1" stroke-opacity=".3"/><circle cx="44" cy="90" r="11" fill="#1e1e1e"/><circle cx="44" cy="90" r="3" fill="#444"/>
+          </svg>
+        </div>
+        <div class="service-info"><h3>ICBC Claims &amp; Detailing</h3><p>We handle ICBC paperwork directly so you don't have to. Every repaired vehicle gets a thorough detailing before you pick it up.</p><span class="service-tag">Hassle-Free Claims</span></div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /services -->
+
+<!-- ======== REVIEWS ======== -->
+<div class="page" id="reviews-page">
+  <div class="section">
+    <div class="reveal" style="text-align:center;margin-bottom:2rem;">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">What Our Customers Say</h2>
+      <div class="divider" style="margin:1rem auto;"></div>
+      <p style="color:var(--muted);max-width:520px;margin:0 auto;">Real reviews from real Vancouver drivers — verified Google Reviews.</p>
+    </div>
+    <div class="rating-summary reveal">
+      <div>
+        <div class="big-score">5.0</div>
+        <div class="stars">★★★★★</div>
+        <div style="color:var(--muted);font-size:.85rem;">Google Reviews · Verified</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.4rem;"><span style="font-size:.85rem;color:var(--muted);width:30px;">5★</span><div style="flex:1;height:6px;background:#222;border-radius:3px;overflow:hidden;"><div style="width:90%;height:100%;background:var(--red);border-radius:3px;"></div></div><span style="font-size:.8rem;color:var(--muted);width:30px;">90%</span></div>
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.4rem;"><span style="font-size:.85rem;color:var(--muted);width:30px;">4★</span><div style="flex:1;height:6px;background:#222;border-radius:3px;overflow:hidden;"><div style="width:8%;height:100%;background:var(--red);border-radius:3px;opacity:.7;"></div></div><span style="font-size:.8rem;color:var(--muted);width:30px;">8%</span></div>
+        <div style="display:flex;align-items:center;gap:.75rem;"><span style="font-size:.85rem;color:var(--muted);width:30px;">3★</span><div style="flex:1;height:6px;background:#222;border-radius:3px;overflow:hidden;"><div style="width:2%;height:100%;background:var(--red);border-radius:3px;opacity:.5;"></div></div><span style="font-size:.8rem;color:var(--muted);width:30px;">2%</span></div>
+      </div>
+      <div style="background:#1a1a1a;border-radius:8px;padding:1rem 1.5rem;text-align:center;">
+        <div style="color:#fff;font-weight:800;font-size:1rem;margin-bottom:.25rem;">Google Reviews</div>
+        <div style="color:#f0c040;font-size:1.1rem;">★★★★★</div>
+        <div style="color:var(--muted);font-size:.75rem;margin-top:.25rem;">Verified Business</div>
+      </div>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"The team is amazing, they not only repaired my car within a week but also went above and beyond and did some additional repairs which were necessary, without charging me extra buck. And now my car looks brand new and runs smoothly."</p><div class="reviewer"><div class="avatar">H</div><div><div class="reviewer-name">Harjinder Sanghera</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"Was recommended to this shop by a friend. I am extremely pleased with the experience - outstanding service and the work done is of top notch quality. Thanks very much to Sam and team!!"</p><div class="reviewer"><div class="avatar">A</div><div><div class="reviewer-name">Abhishek Puri</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"Great team and excellent service. They went above and beyond in getting my car repaired in great time."</p><div class="reviewer"><div class="avatar">M</div><div><div class="reviewer-name">Monica Li</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"Got the company work van repaired here, was met by the manager Sam, service and quality of work was top notch. The part that was exceptional was when I found out today I forgot my gate/garage opener inside their own courtesy cars. I called in to a lady named Sarah, she told me the Loaner was out to another client. She called the client and asked if the opener was still there and lucky enough, it was! She then said she will get one of the shop guys to pick it up from the client, and I can get it back around 4pm. I went back to pick it up and saved from buying a new one and programming it again!"</p><div class="reviewer"><div class="avatar">K</div><div><div class="reviewer-name">Kuljeet Rajput</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"I would highly recommend this place for all ICBC related repairs! Sam the owner is very approachable and helpful. After I had repairs completed from a fender bender accident, I noticed some squeaking from my trunk door. Sam repaired the issue without any hesitation, very honest and willing to provide the customer with a successful repair!"</p><div class="reviewer"><div class="avatar">L</div><div><div class="reviewer-name">Linda Wang</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"I had a great experience with Fraser View Collision, and I can confidently say I'd return if needed. They were recommended to me by ICBC, and I can see why. Sam was fantastic to deal with, super communicative and genuinely seemed invested in getting me back on the road quickly and affordably. The whole team gave off the impression that they weren't just checking boxes; they actually cared about helping you out."</p><div class="reviewer"><div class="avatar">I</div><div><div class="reviewer-name">I. H.</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"Fraserview Collision did a fantastic job on my car. They were very professional and handled all the ICBC paperwork smoothly. I highly recommend them to anyone looking for quality work."</p><div class="reviewer"><div class="avatar">J</div><div><div class="reviewer-name">James S.</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"I was really impressed with the service at Fraserview. They fixed my car quickly and even cleaned it for me. The staff are very friendly and helpful."</p><div class="reviewer"><div class="avatar">S</div><div><div class="reviewer-name">Sandra G.</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"This is the best auto body shop in Vancouver. Sam and his team are honest, professional, and do excellent work. I've been here multiple times and have always been happy."</p><div class="reviewer"><div class="avatar">R</div><div><div class="reviewer-name">Robert D.</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p class="review-text">"Great experience! They provided a courtesy car while mine was being repaired, which was so helpful. The work was perfect and completed on time."</p><div class="reviewer"><div class="avatar">E</div><div><div class="reviewer-name">Emily M.</div><div class="reviewer-source">Google Reviews · Verified</div></div></div></div>
+    </div>
+  </div>
+</div><!-- /reviews -->
+
+<!-- ======== LOCATION ======== -->
+<div class="page" id="location-page">
+  <div class="section">
+    <div class="reveal">
+      <div class="section-label">Find Us</div>
+      <h2 class="section-title">Location &amp; Hours</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="location-grid">
+      <div>
+        <div class="info-block reveal">
+          <h4>Contact Information</h4>
+          <div class="info-row"><span style="color:var(--red);font-size:1.1rem;flex-shrink:0;">📍</span><div class="info-text">8225 Chester St, Vancouver, BC V5X 4P6</div></div>
+          <div class="info-row"><span style="color:var(--red);font-size:1.1rem;flex-shrink:0;">📞</span><div class="info-text"><a href="tel:6043279229" style="color:var(--text);text-decoration:none;">(604) 327-9229</a></div></div>
+          <div class="info-row"><span style="color:var(--red);font-size:1.1rem;flex-shrink:0;">📠</span><div class="info-text">(604) 327-3837 (Fax)</div></div>
+        </div>
+        <div class="info-block reveal">
+          <h4>Hours of Operation</h4>
+          <table class="hours-table">
+            <tr><td>Monday</td><td>7:30 AM – 5:30 PM</td></tr>
+            <tr><td>Tuesday</td><td>7:30 AM – 5:30 PM</td></tr>
+            <tr><td>Wednesday</td><td>7:30 AM – 5:30 PM</td></tr>
+            <tr><td>Thursday</td><td>7:30 AM – 5:30 PM</td></tr>
+            <tr><td>Friday</td><td>7:30 AM – 5:30 PM</td></tr>
+            <tr><td>Saturday</td><td>9:00 AM – 2:00 PM</td></tr>
+            <tr><td>Sunday</td><td style="color:var(--red);">Closed</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="reveal-right">
+        <!-- Custom SVG Map -->
+        <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#1a1f1a;position:relative;">
+          <svg viewBox="0 0 520 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+            <rect width="520" height="400" fill="#1a1f1a"/>
+            <rect x="0" y="0" width="100" height="400" fill="#1e2a1e" opacity=".7"/>
+            <rect x="380" y="200" width="140" height="200" fill="#1e2a1e" opacity=".6"/>
+            <rect x="110" y="30" width="90" height="55" rx="3" fill="#252a25"/><rect x="215" y="30" width="75" height="55" rx="3" fill="#252a25"/><rect x="305" y="30" width="95" height="55" rx="3" fill="#252a25"/>
+            <rect x="110" y="115" width="70" height="60" rx="3" fill="#252a25"/><rect x="195" y="115" width="95" height="60" rx="3" fill="#252a25"/><rect x="305" y="115" width="80" height="60" rx="3" fill="#252a25"/>
+            <rect x="110" y="205" width="85" height="65" rx="3" fill="#252a25"/><rect x="215" y="205" width="75" height="65" rx="3" fill="#252a25"/><rect x="305" y="205" width="90" height="65" rx="3" fill="#252a25"/>
+            <rect x="110" y="300" width="70" height="70" rx="3" fill="#252a25"/><rect x="200" y="300" width="90" height="70" rx="3" fill="#252a25"/><rect x="305" y="300" width="75" height="70" rx="3" fill="#252a25"/>
+            <rect x="0" y="282" width="520" height="12" fill="#2e3430"/>
+            <line x1="0" y1="288" x2="520" y2="288" stroke="#3a4040" stroke-width="1" stroke-dasharray="18,10"/>
+            <rect x="96" y="0" width="11" height="400" fill="#2e3430"/>
+            <line x1="101" y1="0" x2="101" y2="400" stroke="#3a4040" stroke-width="1" stroke-dasharray="18,10"/>
+            <rect x="392" y="0" width="11" height="400" fill="#2e3430"/>
+            <line x1="397" y1="0" x2="397" y2="400" stroke="#3a4040" stroke-width="1" stroke-dasharray="18,10"/>
+            <rect x="0" y="188" width="520" height="10" fill="#2a2e2a"/>
+            <rect x="0" y="98" width="520" height="8" fill="#2a2e2a"/>
+            <rect x="185" y="0" width="7" height="400" fill="#232823"/>
+            <rect x="295" y="0" width="7" height="400" fill="#232823"/>
+            <text x="10" y="278" font-size="9" fill="#6a7a6a" font-family="Arial">SE Marine Dr</text>
+            <text x="400" y="278" font-size="9" fill="#6a7a6a" font-family="Arial">SE Marine Dr</text>
+            <text x="104" y="50" font-size="8" fill="#6a7a6a" font-family="Arial" writing-mode="tb">Fraser St</text>
+            <text x="395" y="50" font-size="8" fill="#6a7a6a" font-family="Arial" writing-mode="tb">Knight St</text>
+            <text x="10" y="185" font-size="9" fill="#6a7a6a" font-family="Arial">Chester St</text>
+            <text x="380" y="185" font-size="9" fill="#6a7a6a" font-family="Arial">Chester St</text>
+            <text x="10" y="95" font-size="8" fill="#6a7a6a" font-family="Arial">E 64th Ave</text>
+            <rect x="198" y="195" width="85" height="58" rx="4" fill="#c0392b" opacity=".25" stroke="#c0392b" stroke-width="1.5"/>
+            <g transform="translate(240,188)">
+              <filter id="pinGlow"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#c0392b" flood-opacity=".8"/></filter>
+              <ellipse cx="0" cy="30" rx="8" ry="4" fill="#000" opacity=".4"/>
+              <path d="M0,-22 C-12,-22 -12,-6 0,10 C12,-6 12,-22 0,-22 Z" fill="#c0392b" filter="url(#pinGlow)"/>
+              <circle cx="0" cy="-10" r="6" fill="#fff"/>
+              <text x="0" y="-6" font-size="8" fill="#c0392b" text-anchor="middle" font-weight="bold">FC</text>
+            </g>
+            <rect x="258" y="140" width="178" height="52" rx="6" fill="#111" stroke="#c0392b" stroke-width="1.5"/>
+            <polygon points="258,165 240,172 258,178" fill="#111" stroke="#c0392b" stroke-width="1"/>
+            <text x="268" y="158" font-size="11" fill="#fff" font-family="Arial" font-weight="bold">Fraserview Collision</text>
+            <text x="268" y="172" font-size="9" fill="#aaa" font-family="Arial">8225 Chester St, Vancouver</text>
+            <text x="268" y="184" font-size="9" fill="#c0392b" font-family="Arial">📞 (604) 327-9229</text>
+            <g transform="translate(480,30)">
+              <circle cx="0" cy="0" r="16" fill="#111" stroke="#333" stroke-width="1"/>
+              <text x="0" y="-4" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">N</text>
+              <polygon points="0,-12 3,0 -3,0" fill="#c0392b"/>
+              <polygon points="0,12 3,0 -3,0" fill="#555"/>
+            </g>
+            <rect x="16" y="375" width="60" height="4" rx="2" fill="#555"/>
+            <text x="16" y="370" font-size="8" fill="#6a7a6a" font-family="Arial">200m</text>
+            <rect x="0" y="380" width="520" height="20" fill="rgba(0,0,0,.5)"/>
+            <text x="260" y="393" font-size="9" fill="#6a7a6a" font-family="Arial" text-anchor="middle">Vancouver, BC · Sunset neighbourhood · Near SE Marine Dr &amp; Fraser St</text>
+          </svg>
+          <a href="https://www.google.com/maps/search/?api=1&query=8225+Chester+St+Vancouver+BC" target="_blank" style="position:absolute;bottom:26px;right:12px;background:#c0392b;color:#fff;font-size:.78rem;font-weight:700;padding:.4rem .9rem;border-radius:20px;text-decoration:none;display:flex;align-items:center;gap:.4rem;box-shadow:0 2px 10px rgba(0,0,0,.5);">🗺 Open in Google Maps</a>
+        </div>
+        <div style="margin-top:1rem;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem;">
+          <span style="font-size:1.3rem;">🚌</span>
+          <div><div style="color:#fff;font-size:.9rem;font-weight:600;">Easy to Reach</div><div style="color:var(--muted);font-size:.82rem;">Near SE Marine Dr · Street parking available · Accessible by transit</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT FORM -->
+  <div class="contact-section" id="contact-anchor">
+    <div class="contact-inner">
+      <div class="reveal" style="text-align:center;margin-bottom:2rem;">
+        <div class="section-label">Get in Touch</div>
+        <h2 class="section-title">Request a Free Estimate</h2>
+        <p style="color:var(--muted);">Fill out the form below and our team will get back to you as soon as possible.</p>
+      </div>
+      <div class="reveal">
+        <!--
+          FORMSPREE SETUP:
+          1. Go to https://formspree.io and sign up
+          2. Create a new form and copy your endpoint URL
+          3. Replace YOUR_FORMSPREE_ID below with your actual ID (e.g. xpwzabcd)
+        -->
+        <form id="quoteForm" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" name="firstName" placeholder="John" required/></div>
+            <div class="form-group"><label>Last Name</label><input type="text" name="lastName" placeholder="Smith" required/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="(604) 555-0000"/></div>
+            <div class="form-group"><label>Email</label><input type="email" name="email" placeholder="john@email.com" required/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Vehicle Make &amp; Model</label><input type="text" name="vehicle" placeholder="e.g. Toyota Camry"/></div>
+            <div class="form-group">
+              <label>Service Needed</label>
+              <select name="service">
+                <option value="">Select a service</option>
+                <option>Auto Body Repair</option>
+                <option>Paint &amp; Refinishing</option>
+                <option>Frame Straightening</option>
+                <option>SUV / Van / Truck Repair</option>
+                <option>Windshield Repair</option>
+                <option>ICBC Claim</option>
+                <option>Auto Detailing</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>Describe the Damage</label><textarea name="message" placeholder="Please describe what happened and the extent of the damage..."></textarea></div>
+          <button type="submit" class="submit-btn" id="submitBtn">Send Request →</button>
+        </form>
+        <div class="success-msg" id="success-msg">✅ Thank you! We'll be in touch within 1 business day.</div>
+        <div class="error-msg" id="error-msg">❌ Something went wrong. Please call us at (604) 327-9229.</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /location -->
+
+<!-- ======== FOOTER ======== -->
+<footer>
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="footer-logo">Fraserview <span>Collision</span></div>
+    <div style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;">8225 Chester St, Vancouver, BC V5X 4P6 · (604) 327-9229</div>
+    <div class="footer-links">
+      <a onclick="showPage('home')">Home</a>
+      <a onclick="showPage('services')">Services</a>
+      <a onclick="showPage('reviews')">Reviews</a>
+      <a onclick="showPage('location')">Location</a>
+      <a onclick="goContact()">Contact</a>
+    </div>
+    <div style="color:#444;font-size:.8rem;">© 2025 Fraserview Collision Repair Ltd. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- ======== AI CHAT ======== -->
+<!--
+  ANTHROPIC API SETUP:
+  1. Get your API key from https://console.anthropic.com
+  2. Replace YOUR_ANTHROPIC_API_KEY below with your actual key
+  3. IMPORTANT: Before going public, move this to a backend proxy (Vercel function)
+     so your key is not exposed in the browser source code.
+-->
+<div class="chat-widget">
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-av">🔧</div>
+        <div>
+          <div class="chat-title-txt">Fraserview Assistant</div>
+          <div class="chat-subtitle">Ask about repairs, estimates &amp; more</div>
+        </div>
+      </div>
+      <button class="chat-close" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">Hi! I'm Fraserview's AI assistant. I can help with questions about our services, hours, ICBC claims, and booking a free estimate. What can I help you with? 😊</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Type your question..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+  <button class="chat-btn" onclick="toggleChat()">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.64 1.19 5.01 3.08 6.71L4 22l4.44-1.48C9.55 20.83 10.75 21 12 21c5.52 0 10-4.03 10-9S17.52 2 12 2z"/></svg>
+  </button>
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────
+// Replace with your actual Anthropic API key.
+// Move to a backend proxy before going public!
+const ANTHROPIC_API_KEY = 'YOUR_ANTHROPIC_API_KEY';
+// ───────────────────────────────────────────────────────────
+
+// PAGE NAVIGATION
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  document.getElementById(p + '-page').classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const n = document.getElementById('nav-' + p);
+  if (n) n.classList.add('active');
+  window.scrollTo(0, 0);
+  setTimeout(observeReveal, 100);
+}
+
+function goContact() {
+  showPage('location');
+  setTimeout(() => document.getElementById('contact-anchor').scrollIntoView({ behavior: 'smooth' }), 200);
+}
+
+// SCROLL REVEAL
+function observeReveal() {
+  const els = document.querySelectorAll('.reveal:not(.visible),.reveal-left:not(.visible),.reveal-right:not(.visible)');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  els.forEach(el => obs.observe(el));
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(observeReveal, 100));
+window.addEventListener('scroll', observeReveal);
+
+// CONTACT FORM (Formspree)
+document.getElementById('quoteForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  document.getElementById('success-msg').style.display = 'none';
+  document.getElementById('error-msg').style.display = 'none';
+  try {
+    const res = await fetch(this.action, {
+      method: 'POST',
+      body: new FormData(this),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      document.getElementById('success-msg').style.display = 'block';
+      this.reset();
+    } else {
+      document.getElementById('error-msg').style.display = 'block';
+    }
+  } catch (err) {
+    document.getElementById('error-msg').style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Send Request →';
+});
+
+// AI CHAT
+function toggleChat() {
+  const p = document.getElementById('chatPanel');
+  p.classList.toggle('open');
+  if (p.classList.contains('open')) document.getElementById('chatInput').focus();
+}
+
+const SYS = `You are a helpful AI assistant for Fraserview Collision Repair, a trusted auto body shop in Vancouver, BC.
+Key facts:
+- Address: 8225 Chester St, Vancouver, BC V5X 4P6
+- Phone: (604) 327-9229
+- Hours: Mon-Fri 7:30am-5:30pm, Sat 9am-2pm, Sun Closed
+- Founded 1994 by Rick and Ali Habib
+- Services: auto body repair, paint & refinishing, frame straightening, SUV/van/truck repair, windshield repair, ICBC claims, auto detailing
+- Courtesy/loaner cars from day one
+- Free estimates, no hidden fees
+- ICBC recommended and accepted
+- Team includes Sam (manager), Sarah (front desk)
+- Repairs typically done within a week
+Be friendly and concise. Keep replies under 3 sentences unless detail is needed. Always encourage booking a free estimate or calling (604) 327-9229.`;
+
+let hist = [];
+
+async function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addMsg(msg, 'user');
+  hist.push({ role: 'user', content: msg });
+  const t = addTyping();
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYS, messages: hist })
+    });
+    const d = await r.json();
+    t.remove();
+    const rep = d.content?.map(c => c.text || '').join('') || "Sorry, I'm having trouble. Please call (604) 327-9229!";
+    hist.push({ role: 'assistant', content: rep });
+    addMsg(rep, 'bot');
+  } catch (err) {
+    t.remove();
+    addMsg("Sorry, I'm having trouble connecting. Please call us at (604) 327-9229!", 'bot');
+  }
+}
+
+function addMsg(text, type) {
+  const m = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.className = 'msg ' + type;
+  d.textContent = text;
+  m.appendChild(d);
+  m.scrollTop = m.scrollHeight;
+  return d;
+}
+
+function addTyping() {
+  const m = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.className = 'msg typing';
+  d.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  m.appendChild(d);
+  m.scrollTop = m.scrollHeight;
+  return d;
+}
+</script>
+</body>
+</html>
